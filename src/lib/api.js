@@ -2,7 +2,7 @@
 const mockShows = [
   {
     id: '1',
-    title: 'Love Between Fairy and Devil',
+    title: 'Test',
     description:
       'A powerful fairy accidentally awakens a sleeping devil, leading to an unexpected romance that transcends realms.',
     posterUrl: '/placeholder.svg?height=450&width=300',
@@ -159,6 +159,93 @@ const mockEpisodes = [
     releaseDate: '2022-12-30',
   },
 ];
+
+export async function fetchOngoingAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/otakudesu/home');
+    const data = await response.json();
+
+    if (data.ok && data.data.ongoing.animeList) {
+      return data.data.ongoing.animeList;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
+    return [];
+  }
+}
+
+export async function fetchCompleteAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/otakudesu/home');
+    const data = await response.json();
+
+    if (data.ok && data.data.completed.animeList) {
+      return data.data.completed.animeList;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
+    return [];
+  }
+}
+
+export async function fetchGenresWithPosters() {
+  try {
+    const response = await fetch('http://localhost:3001/samehadaku/genres');
+    const data = await response.json();
+
+    if (!data.ok || !data.data.genreList) {
+      return [];
+    }
+
+    // Ambil genre list
+    const genreList = data.data.genreList;
+
+    // Ambil poster dari anime pertama untuk setiap genre
+    const updatedGenres = await Promise.all(
+      genreList.map(async (genre) => {
+        try {
+          const genreResponse = await fetch(
+            `http://localhost:3001/samehadaku/genres/${genre.genreId}`
+          );
+          const genreData = await genreResponse.json();
+
+          // Jika ada anime, gunakan poster pertama
+          const poster =
+            genreData.ok && genreData.data.animeList.length > 0
+              ? genreData.data.animeList[4].poster
+              : '/placeholder.svg?height=300&width=600';
+
+          return {
+            id: genre.genreId,
+            title: genre.title,
+            href: genre.href,
+            image: poster,
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching anime for genre ${genre.genreId}:`,
+            error
+          );
+          return {
+            id: genre.genreId,
+            title: genre.title,
+            href: genre.href,
+            image: '/placeholder.svg?height=300&width=600',
+          };
+        }
+      })
+    );
+
+    return updatedGenres;
+  } catch (error) {
+    console.error('Error fetching genres with posters:', error);
+    return [];
+  }
+}
 
 // API functions
 export async function getFeaturedShow() {

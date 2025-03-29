@@ -2,22 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getTrendingShows } from '../lib/api';
+import { fetchCompleteAnime } from '../lib/api';
 
-function TrendingSection() {
+function CompleteSection() {
   const [shows, setShows] = useState([]);
 
   useEffect(() => {
-    const fetchTrending = async () => {
+    const fetchShows = async () => {
       try {
-        const data = await getTrendingShows();
-        setShows(data);
+        const data = await fetchCompleteAnime();
+        const formattedData = data.map((anime) => ({
+          id: anime.animeId, // Gunakan animeId sebagai id
+          title: anime.title,
+          posterUrl: anime.poster, // Sesuaikan dengan API
+          href: anime.href, // Bisa dipakai untuk navigasi nanti
+          isNew: false, // Bisa tambahkan logic jika ada indikator baru
+          isVip: false, // Bisa tambahkan logic jika ada indikator VIP
+        }));
+
+        setShows(formattedData);
       } catch (error) {
-        console.error('Error fetching trending shows:', error);
+        console.error('Error fetching Complete anime:', error);
       }
     };
 
-    fetchTrending();
+    fetchShows();
   }, []);
 
   return (
@@ -70,4 +79,4 @@ function TrendingSection() {
   );
 }
 
-export default TrendingSection;
+export default CompleteSection;
