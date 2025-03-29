@@ -3,15 +3,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ShowCard from './ShowCard';
-import { fetchOngoingAnime } from '../lib/api';
+import { fetchPopularAnime } from '../lib/api';
 
-function OngoingSection() {
+function PopularSection() {
   const [shows, setShows] = useState([]);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const data = await fetchOngoingAnime();
+        const data = await fetchPopularAnime();
         const formattedData = data.map((anime) => ({
           id: anime.animeId, // Gunakan animeId sebagai id
           title: anime.title,
@@ -23,7 +23,7 @@ function OngoingSection() {
 
         setShows(formattedData);
       } catch (error) {
-        console.error('Error fetching ongoing anime:', error);
+        console.error('Error fetching Popular anime:', error);
       }
     };
 
@@ -34,9 +34,9 @@ function OngoingSection() {
     <section>
       <div className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">On Going</h2>
+          <h2 className="text-xl font-bold">Top Trending</h2>
           <Link
-            to="/category/top"
+            to="/category/real-events"
             className="text-sm text-gray-400 hover:text-white"
           >
             Lihat Semua &gt;
@@ -115,4 +115,4 @@ function OngoingSection() {
   );
 }
 
-export default OngoingSection;
+export default PopularSection;

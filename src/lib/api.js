@@ -178,11 +178,11 @@ export async function fetchOngoingAnime() {
 
 export async function fetchCompleteAnime() {
   try {
-    const response = await fetch('http://localhost:3001/otakudesu/home');
+    const response = await fetch('http://localhost:3001/otakudesu/completed');
     const data = await response.json();
 
-    if (data.ok && data.data.completed.animeList) {
-      return data.data.completed.animeList;
+    if (data.ok && data.data.animeList) {
+      return data.data.animeList;
     }
 
     return [];
@@ -194,7 +194,7 @@ export async function fetchCompleteAnime() {
 
 export async function fetchGenresWithPosters() {
   try {
-    const response = await fetch('http://localhost:3001/samehadaku/genres');
+    const response = await fetch('http://localhost:3001/otakudesu/genres');
     const data = await response.json();
 
     if (!data.ok || !data.data.genreList) {
@@ -209,7 +209,7 @@ export async function fetchGenresWithPosters() {
       genreList.map(async (genre) => {
         try {
           const genreResponse = await fetch(
-            `http://localhost:3001/samehadaku/genres/${genre.genreId}`
+            `http://localhost:3001/otakudesu/genres/${genre.genreId}`
           );
           const genreData = await genreResponse.json();
 
@@ -243,6 +243,38 @@ export async function fetchGenresWithPosters() {
     return updatedGenres;
   } catch (error) {
     console.error('Error fetching genres with posters:', error);
+    return [];
+  }
+}
+
+export async function fetchMovieAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/samehadaku/movies');
+    const data = await response.json();
+
+    if (data.ok && data.data.animeList) {
+      return data.data.animeList;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
+    return [];
+  }
+}
+
+export async function fetchPopularAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/samehadaku/popular');
+    const data = await response.json();
+
+    if (data.ok && data.data.animeList) {
+      return data.data.animeList;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
     return [];
   }
 }

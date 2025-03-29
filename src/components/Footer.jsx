@@ -179,10 +179,46 @@ function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} WeTV Clone. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} WeNime. All rights reserved.</p>
           <p className="mt-2">
-            This is a demo project and not affiliated with the actual WeTV
-            service.
+            This is a demo project and is not affiliated with any service. Data
+            we got from other parties on{' '}
+            <a
+              href="https://github.com/wajik45/wajik-anime-api"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              Github
+            </a>
+            , credit to{' '}
+            <a
+              href="https://samehadaku.mba"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              Samehadaku
+            </a>{' '}
+            and{' '}
+            <a
+              href="https://otakudesu.cloud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              Otakudesu
+            </a>
+            , and layout inspired by{' '}
+            <a
+              href="https://wetv.vip"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              WeTV
+            </a>
+            .
           </p>
         </div>
       </div>

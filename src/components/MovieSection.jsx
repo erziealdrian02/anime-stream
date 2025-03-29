@@ -2,28 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ShowCard from './ShowCard';
-import { fetchOngoingAnime } from '../lib/api';
+import ShowBigCard from './ShowBigCard';
+import { fetchMovieAnime } from '../lib/api';
 
-function OngoingSection() {
+function CompleteSection() {
   const [shows, setShows] = useState([]);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const data = await fetchOngoingAnime();
+        const data = await fetchMovieAnime();
         const formattedData = data.map((anime) => ({
-          id: anime.animeId, // Gunakan animeId sebagai id
+          id: anime.animeId,
           title: anime.title,
-          posterUrl: anime.poster, // Sesuaikan dengan API
-          href: anime.href, // Bisa dipakai untuk navigasi nanti
-          isNew: false, // Bisa tambahkan logic jika ada indikator baru
-          isVip: false, // Bisa tambahkan logic jika ada indikator VIP
+          posterUrl: anime.poster,
+          score: anime.score,
+          href: anime.href,
+          isNew: false,
+          isVip: false,
+          genres: anime.genreList.map((genre) => ({
+            title: genre.title, // Nama genre
+            genreId: genre.genreId, // ID genre untuk link
+          })),
         }));
 
         setShows(formattedData);
       } catch (error) {
-        console.error('Error fetching ongoing anime:', error);
+        console.error('Error fetching Complete anime:', error);
       }
     };
 
@@ -34,9 +39,9 @@ function OngoingSection() {
     <section>
       <div className="mb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">On Going</h2>
+          <h2 className="text-xl font-bold">Movies</h2>
           <Link
-            to="/category/top"
+            to="/category/recommended"
             className="text-sm text-gray-400 hover:text-white"
           >
             Lihat Semua &gt;
@@ -54,9 +59,9 @@ function OngoingSection() {
               <div
                 key={show.id}
                 className="flex-shrink-0"
-                style={{ width: '170px' }}
+                style={{ width: '280px' }}
               >
-                <ShowCard show={show} />
+                <ShowBigCard show={show} />
               </div>
             ))}
           </div>
@@ -115,4 +120,4 @@ function OngoingSection() {
   );
 }
 
-export default OngoingSection;
+export default CompleteSection;
