@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ShowCard from './ShowCard';
+import ShowBigCard from './ShowBigCard';
 import { fetchCompleteAnime } from '../lib/api';
 
 function CompleteSection() {
@@ -13,12 +13,19 @@ function CompleteSection() {
       try {
         const data = await fetchCompleteAnime();
         const formattedData = data.map((anime) => ({
-          id: anime.animeId, // Gunakan animeId sebagai id
+          id: anime.animeId,
           title: anime.title,
-          posterUrl: anime.poster, // Sesuaikan dengan API
-          href: anime.href, // Bisa dipakai untuk navigasi nanti
-          isNew: false, // Bisa tambahkan logic jika ada indikator baru
-          isVip: false, // Bisa tambahkan logic jika ada indikator VIP
+          posterUrl: anime.poster,
+          href: anime.href,
+          score: anime.score,
+          status: anime.status,
+          type: anime.type,
+          isNew: false,
+          isVip: false,
+          genres: anime.genreList.map((genre) => ({
+            title: genre.title, // Nama genre
+            genreId: genre.genreId, // ID genre untuk link
+          })),
         }));
 
         setShows(formattedData);
@@ -53,10 +60,9 @@ function CompleteSection() {
             {shows.map((show) => (
               <div
                 key={show.id}
-                className="flex-shrink-0"
-                style={{ width: '170px' }}
+                className="flex-shrink-0 w-[190px] md:w-[250px]"
               >
-                <ShowCard show={show} />
+                <ShowBigCard show={show} />
               </div>
             ))}
           </div>

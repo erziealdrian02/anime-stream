@@ -96,7 +96,7 @@ function Navbar() {
             to="/anime"
             className={`font-medium ${
               location.pathname.includes('/anime')
-                ? 'text-orange-500'
+                ? 'text-blue-500'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -195,11 +195,11 @@ function Navbar() {
             </svg>
           </button>
 
-          <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
+          <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
             U
           </div>
 
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4">
             <svg
               className="h-4 w-4 mr-1"
               viewBox="0 0 24 24"
@@ -217,7 +217,7 @@ function Navbar() {
             APP
           </Button>
 
-          <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full px-4">
+          <Button className="bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white rounded-full px-4">
             VIP
           </Button>
         </div>

@@ -41,7 +41,9 @@ function CategorySection() {
               />
               <div className="absolute inset-0 bg-black/50 group-hover:bg-black/70 transition-colors" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <h3 className="text-xl font-bold text-white">{genre.title}</h3>
+                <h3 className="text-xl font-bold group-hover:text-blue-300/55 transition text-white">
+                  {genre.title}
+                </h3>
               </div>
             </Link>
           ))}

@@ -183,41 +183,41 @@ function Footer() {
           <p className="mt-2">
             This is a demo project and is not affiliated with any service. Data
             we got from other parties on{' '}
-            <a
+            <Link
               href="https://github.com/wajik45/wajik-anime-api"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
               Github
-            </a>
+            </Link>
             , credit to{' '}
-            <a
+            <Link
               href="https://samehadaku.mba"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
               Samehadaku
-            </a>{' '}
+            </Link>{' '}
             and{' '}
-            <a
+            <Link
               href="https://otakudesu.cloud"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
               Otakudesu
-            </a>
+            </Link>
             , and layout inspired by{' '}
-            <a
+            <Link
               href="https://wetv.vip"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
               WeTV
-            </a>
+            </Link>
             .
           </p>
         </div>

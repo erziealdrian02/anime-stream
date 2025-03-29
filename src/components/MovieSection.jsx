@@ -18,6 +18,8 @@ function CompleteSection() {
           posterUrl: anime.poster,
           score: anime.score,
           href: anime.href,
+          status: anime.status,
+          type: anime.type,
           isNew: false,
           isVip: false,
           genres: anime.genreList.map((genre) => ({
@@ -58,8 +60,7 @@ function CompleteSection() {
             {shows.map((show) => (
               <div
                 key={show.id}
-                className="flex-shrink-0"
-                style={{ width: '280px' }}
+                className="flex-shrink-0 w-[190px] md:w-[250px]"
               >
                 <ShowBigCard show={show} />
               </div>

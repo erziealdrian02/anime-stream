@@ -162,11 +162,11 @@ const mockEpisodes = [
 
 export async function fetchOngoingAnime() {
   try {
-    const response = await fetch('http://localhost:3001/otakudesu/home');
+    const response = await fetch('http://localhost:3001/samehadaku/ongoing');
     const data = await response.json();
 
-    if (data.ok && data.data.ongoing.animeList) {
-      return data.data.ongoing.animeList;
+    if (data.ok && data.data.animeList) {
+      return data.data.animeList;
     }
 
     return [];
@@ -178,7 +178,7 @@ export async function fetchOngoingAnime() {
 
 export async function fetchCompleteAnime() {
   try {
-    const response = await fetch('http://localhost:3001/otakudesu/completed');
+    const response = await fetch('http://localhost:3001/samehadaku/completed');
     const data = await response.json();
 
     if (data.ok && data.data.animeList) {
