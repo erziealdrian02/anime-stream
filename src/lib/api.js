@@ -279,6 +279,178 @@ export async function fetchPopularAnime() {
   }
 }
 
+export async function fetchDetailAnime(id) {
+  try {
+    const response = await fetch(
+      `http://localhost:3001/samehadaku/anime/${id}`
+    );
+    const result = await response.json();
+
+    const animeData = result.data;
+    console.log('resul dari lib', animeData);
+
+    if (result.ok && result.data.episodeList) {
+      const episodes = result.data.episodeList;
+      const moreThanTwenty = episodes.length > 25; // Menentukan apakah lebih dari 50 episode
+
+      if (episodes.length > 25) {
+        // Jika lebih dari 25, hanya ambil satu episode dari setiap kelompok 25 episode
+        const selectedEpisodes = [];
+        const groupSize = 25;
+
+        for (let i = 0; i < episodes.length; i += groupSize) {
+          selectedEpisodes.push(episodes[i]); // Ambil episode pertama dari setiap kelompok
+        }
+
+        return { episodes: selectedEpisodes, animeData, moreThanTwenty };
+      } else {
+        // Jika 25 atau kurang, ambil recommendedEpisodeList dari API kedua
+        const episodeId = episodes[0].episodeId; // Ambil episodeId dari episode pertama
+        const episodeResponse = await fetch(
+          `http://localhost:3001/samehadaku/episode/${episodeId}`
+        );
+        const episodeData = await episodeResponse.json();
+
+        if (episodeData.ok && episodeData.data.recommendedEpisodeList) {
+          const groupedEpisodes = episodeData.data.recommendedEpisodeList;
+          return { episodes: groupedEpisodes, animeData, moreThanTwenty };
+        }
+
+        return { episodes: [], animeData, moreThanTwenty };
+      }
+    }
+
+    return { episodes: [], animeData: null, moreThanTwenty: false };
+  } catch (error) {
+    console.error('Error fetching anime details:', error);
+    return { episodes: [], animeData: null, moreThanTwenty: false };
+  }
+}
+
+export async function fetchMoreAnime(episodeId) {
+  try {
+    const response = await fetch(
+      `http://localhost:3001/samehadaku/episode/${episodeId}`
+    );
+    const data = await response.json();
+    console.log(data);
+
+    if (data.ok && data.data.recommendedEpisodeList) {
+      return data.data.recommendedEpisodeList;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
+    return [];
+  }
+}
+
+// export async function fetchDetailAnime(id) {
+//   try {
+//     // 1. Ambil data anime utama
+//     const response = await fetch(
+//       `http://localhost:3001/samehadaku/anime/${id}`
+//     );
+//     const data = await response.json();
+
+//     if (!data.ok || !data.data) {
+//       console.error('Failed to fetch anime data');
+//       return null;
+//     }
+
+//     const animeData = data.data;
+//     const MAX_EPISODES = 25; // Batas maksimum episode yang ditampilkan
+
+//     // Cek jumlah episode, tambahkan flag jika melebihi batas
+//     const hasMoreEpisodes =
+//       animeData.episodeList && animeData.episodeList.length > MAX_EPISODES;
+
+//     // 2. Proses hanya 25 episode pertama
+//     let enhancedEpisodeList = [];
+
+//     if (animeData.episodeList?.length > 0) {
+//       // Ambil hanya sampai MAX_EPISODES
+//       const limitedEpisodeList = animeData.episodeList.slice(0, MAX_EPISODES);
+
+//       try {
+//         // Ambil rekomendasi untuk 5 episode pertama saja (untuk performa)
+//         const firstEpisodes = limitedEpisodeList.slice(0, 5);
+//         const recommendedResults = await Promise.all(
+//           firstEpisodes.map(async (ep) => {
+//             const epResponse = await fetch(
+//               `http://localhost:3001/samehadaku/episode/${
+//                 ep.episodeId || ep.id
+//               }`
+//             );
+//             const epData = await epResponse.json();
+//             return epData.ok ? epData.data?.recommendedEpisodeList : null;
+//           })
+//         );
+
+//         // Proses rekomendasi yang didapat
+//         recommendedResults
+//           .flat()
+//           .filter(Boolean)
+//           .forEach((recEp) => {
+//             if (!recEp) return;
+
+//             const epNumber = recEp.title?.match(/\d+/)?.[0] || '';
+//             const existingIndex = enhancedEpisodeList.findIndex(
+//               (ep) => ep.number === epNumber
+//             );
+
+//             if (existingIndex >= 0) {
+//               // Update existing episode with recommended data
+//               enhancedEpisodeList[existingIndex] = {
+//                 ...enhancedEpisodeList[existingIndex],
+//                 title: recEp.title || enhancedEpisodeList[existingIndex].title,
+//                 thumbnail:
+//                   recEp.poster || enhancedEpisodeList[existingIndex].thumbnail,
+//                 url: recEp.href || enhancedEpisodeList[existingIndex].url,
+//                 isRecommended: true,
+//               };
+//             } else if (epNumber) {
+//               // Add new recommended episode
+//               enhancedEpisodeList.push({
+//                 id: `${id}-rec-ep-${epNumber}`,
+//                 number: epNumber,
+//                 title: recEp.title || `Episode ${epNumber}`,
+//                 thumbnail: recEp.poster || animeData.poster,
+//                 url: recEp.href || `/watch/${id}?ep=${epNumber}`,
+//                 releaseDate: recEp.releaseDate || '',
+//                 samehadakuUrl: recEp.samehadakuUrl || '',
+//                 isRecommended: true,
+//               });
+//             }
+//           });
+//       } catch (error) {
+//         console.error('Error fetching recommended episodes:', error);
+//       }
+
+//       // Urutkan episode berdasarkan nomor
+//       enhancedEpisodeList.sort(
+//         (a, b) => parseInt(a.number) - parseInt(b.number)
+//       );
+//     }
+
+//     // 3. Kembalikan data dengan flag untuk indikator jumlah episode
+//     return {
+//       ...animeData,
+//       episodeList: enhancedEpisodeList,
+//       hasMoreEpisodes: hasMoreEpisodes,
+//       totalEpisodes: animeData.episodeList?.length || 0,
+//       displayedEpisodes: Math.min(
+//         MAX_EPISODES,
+//         animeData.episodeList?.length || 0
+//       ),
+//     };
+//   } catch (error) {
+//     console.error('Error in fetchDetailAnime:', error);
+//     return null;
+//   }
+// }
+
 // API functions
 export async function getFeaturedShow() {
   // Simulate API delay
