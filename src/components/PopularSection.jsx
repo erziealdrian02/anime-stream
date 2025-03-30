@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ShowBigCard from './ShowBigCard';
 import { fetchPopularAnime } from '../lib/api';
+import PopularSkeletonLoader from './loader/PopularSkeletonLoader';
 
 function PopularSection() {
   const [shows, setShows] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        setLoading(true);
         const data = await fetchPopularAnime();
         const formattedData = data.map((anime) => ({
           id: anime.animeId,
@@ -31,11 +34,17 @@ function PopularSection() {
         setShows(formattedData);
       } catch (error) {
         console.error('Error fetching Popular anime:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchShows();
   }, []);
+
+  if (loading) {
+    return <PopularSkeletonLoader />;
+  }
 
   return (
     <section>

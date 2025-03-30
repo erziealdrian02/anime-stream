@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ShowBigCard from './ShowBigCard';
+import OngoingSkeletonLoader from './loader/OngoingSkeletonLoader';
 import { fetchOngoingAnime } from '../lib/api';
 
 function OngoingSection() {
   const [shows, setShows] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        setLoading(true);
         const data = await fetchOngoingAnime();
         const formattedData = data.map((anime) => ({
           id: anime.animeId,
@@ -31,11 +34,17 @@ function OngoingSection() {
         setShows(formattedData);
       } catch (error) {
         console.error('Error fetching ongoing anime:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchShows();
   }, []);
+
+  if (loading) {
+    return <OngoingSkeletonLoader />;
+  }
 
   return (
     <section>

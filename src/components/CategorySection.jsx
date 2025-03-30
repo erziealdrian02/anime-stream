@@ -3,19 +3,32 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchGenresWithPosters } from '../lib/api';
+import CategorySkeletonLoader from './loader/CategorySkeletonLoader';
 
 function CategorySection() {
   const [genres, setGenres] = useState([]);
   const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadGenres = async () => {
-      const data = await fetchGenresWithPosters();
-      setGenres(data);
+      try {
+        setLoading(true);
+        const data = await fetchGenresWithPosters();
+        setGenres(data);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadGenres();
   }, []);
+
+  if (loading) {
+    return <CategorySkeletonLoader />;
+  }
 
   // Slice the genres array based on showAll state
   const visibleGenres = showAll ? genres : genres.slice(0, 8);

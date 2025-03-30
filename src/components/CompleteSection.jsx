@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ShowBigCard from './ShowBigCard';
 import { fetchCompleteAnime } from '../lib/api';
+import CompleteSkeletonLoader from './loader/CompleteSkeletonLoader';
 
 function CompleteSection() {
   const [shows, setShows] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        setLoading(true);
         const data = await fetchCompleteAnime();
         const formattedData = data.map((anime) => ({
           id: anime.animeId,
@@ -31,11 +34,17 @@ function CompleteSection() {
         setShows(formattedData);
       } catch (error) {
         console.error('Error fetching Complete anime:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchShows();
   }, []);
+
+  if (loading) {
+    return <CompleteSkeletonLoader />;
+  }
 
   return (
     <section>

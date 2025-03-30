@@ -441,7 +441,6 @@ function DetailsPage() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">
-                          {episode.episodeNumber || index + 1}.{' '}
                           {renderContent(episode.title)}
                         </h4>
                         <p className="text-sm text-gray-400 mt-2 line-clamp-2">
