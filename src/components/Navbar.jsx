@@ -276,52 +276,136 @@ function Navbar() {
               />
             </div>
 
-            {/* Search Results Dropdown */}
+            {/* Enhanced Search Results Dropdown */}
             {isSearchExpanded && (
-              <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-gray-900 rounded-md shadow-lg z-50">
-                {loading ? (
-                  // Skeleton Loader
-                  <div className="p-2">
-                    {[...Array(5)].map((_, index) => (
-                      <div
+              <div className="absolute top-full left-0 mt-2 w-80 max-h-[80vh] overflow-hidden bg-gray-900/95 backdrop-blur-sm rounded-md shadow-lg z-50 border border-gray-800">
+                {/* Search Header */}
+                <div className="sticky top-0 bg-gray-800 px-4 py-2 border-b border-gray-700 flex justify-between items-center">
+                  <span className="text-sm font-medium text-white">
+                    Search Results {animes.length > 0 && `(${animes.length})`}
+                  </span>
+                  {loading && (
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                      <span className="text-xs text-gray-400">
+                        Searching...
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Results Container with Custom Scrollbar */}
+                <div className="overflow-y-auto max-h-[70vh] custom-scrollbar">
+                  {loading ? (
+                    // Skeleton Loader - Menampilkan lebih banyak skeleton
+                    <div className="p-2">
+                      {[...Array(8)].map((_, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2 p-3 animate-pulse"
+                        >
+                          <div className="w-12 h-16 bg-gray-700 rounded"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                            <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : animes.length > 0 ? (
+                    // Menampilkan semua hasil tanpa batasan
+                    animes.map((anime, index) => (
+                      <Link
                         key={index}
-                        className="flex items-center space-x-2 p-2 animate-pulse"
+                        to={`/details/${anime.animeId}`}
+                        className="block p-3 text-sm text-white hover:bg-gray-800/70 border-b border-gray-800/50 last:border-b-0 transition-colors duration-150"
+                        onClick={() => {
+                          setAnimes([]);
+                          setIsSearchExpanded(false);
+                        }}
                       >
-                        <div className="w-8 h-10 bg-gray-700 rounded"></div>
-                        <div className="flex-1 h-4 bg-gray-700 rounded"></div>
-                      </div>
-                    ))}
-                  </div>
-                ) : animes.length > 0 ? (
-                  animes.map((anime, index) => (
-                    <Link
-                      key={index}
-                      to={`/details/${anime.animeId}`}
-                      className="block px-4 py-2 text-sm text-white hover:bg-gray-800 border-b border-gray-800 last:border-b-0"
-                      onClick={() => {
-                        setAnimes([]);
-                        setIsSearchExpanded(false);
-                      }}
-                    >
-                      <div className="flex items-center">
-                        <img
-                          src={anime.poster}
-                          alt={anime.title}
-                          className="w-8 h-10 object-cover mr-2 rounded"
-                          onError={(e) => {
-                            e.target.src =
-                              '/placeholder.svg?height=100&width=70';
-                          }}
-                        />
-                        <span className="line-clamp-1">{anime.title}</span>
-                      </div>
-                    </Link>
-                  ))
-                ) : text.length > 2 ? (
-                  <div className="p-4 text-sm text-gray-400 text-center">
-                    No results found
-                  </div>
-                ) : null}
+                        <div className="flex gap-3">
+                          <img
+                            src={anime.poster || '/placeholder.svg'}
+                            alt={anime.title}
+                            className="w-12 h-16 object-cover rounded shadow-md flex-shrink-0"
+                            onError={(e) => {
+                              e.target.src =
+                                '/placeholder.svg?height=100&width=70';
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-white line-clamp-1">
+                              {anime.title}
+                            </h4>
+                            <div className="mt-1 flex items-center text-xs text-gray-400">
+                              <span className="flex items-center">
+                                <svg
+                                  className="w-3 h-3 text-yellow-400 mr-1"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-.118L2.98 8.72c-.783-.57-.38-1.81.588-.181h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                {anime.rating || '8.7'}
+                              </span>
+                              <span className="mx-2">•</span>
+                              <span>{anime.type || 'TV'}</span>
+                              <span className="mx-2">•</span>
+                              <span>{anime.episodes || '12'} eps</span>
+                            </div>
+                            <div className="mt-1">
+                              <span className="inline-block px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
+                                {anime.status || 'Ongoing'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : text.length > 2 ? (
+                    <div className="p-8 text-sm text-gray-400 text-center">
+                      <svg
+                        className="w-12 h-12 mx-auto text-gray-600 mb-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <p>No results found for "{text}"</p>
+                      <p className="text-xs mt-1">
+                        Try different keywords or check spelling
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-sm text-gray-400 text-center">
+                      <svg
+                        className="w-12 h-12 mx-auto text-gray-600 mb-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        ></path>
+                      </svg>
+                      <p>Type at least 3 characters to search</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
