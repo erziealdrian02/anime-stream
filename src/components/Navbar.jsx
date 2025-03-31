@@ -1,13 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 
 function Navbar() {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [text, setText] = useState('');
+  const [animes, setAnimes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -18,6 +23,135 @@ function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const searchAnime = async (query) => {
+    if (!query.trim()) return setAnimes([]);
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3001/samehadaku/search?q=${query}`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const rawData = await response.json();
+      console.log('API Response:', rawData);
+
+      // Extract the data array from the response structure
+      let resultsArray = [];
+
+      // Check for the specific structure from your API response
+      if (
+        rawData &&
+        rawData.data &&
+        rawData.data.animeList &&
+        Array.isArray(rawData.data.animeList)
+      ) {
+        resultsArray = rawData.data.animeList;
+      } else if (rawData && rawData.data && Array.isArray(rawData.data)) {
+        resultsArray = rawData.data;
+      } else if (
+        rawData &&
+        rawData.data &&
+        typeof rawData.data === 'object' &&
+        rawData.data.results
+      ) {
+        resultsArray = rawData.data.results;
+      } else if (Array.isArray(rawData)) {
+        resultsArray = rawData;
+      } else if (rawData && typeof rawData === 'object') {
+        // Try to find an array property in the response
+        const possibleArrayProps = [
+          'results',
+          'data',
+          'items',
+          'animes',
+          'content',
+          'animeList',
+        ];
+
+        for (const prop of possibleArrayProps) {
+          if (Array.isArray(rawData[prop])) {
+            resultsArray = rawData[prop];
+            break;
+          }
+
+          // Check one level deeper
+          if (rawData.data && Array.isArray(rawData.data[prop])) {
+            resultsArray = rawData.data[prop];
+            break;
+          }
+        }
+      }
+
+      console.log('Processed array:', resultsArray);
+
+      if (!Array.isArray(resultsArray)) {
+        console.error('Could not find array in response');
+        resultsArray = [];
+      }
+
+      const results = resultsArray.map((anime) => ({
+        animeId: anime.animeId || anime._animeId || anime.slug || '',
+        title: anime.title || anime.name || 'Unknown Title',
+        poster:
+          anime.poster ||
+          anime.image ||
+          anime.thumbnail ||
+          '/placeholder.svg?height=100&width=70',
+      }));
+
+      setAnimes(results);
+    } catch (error) {
+      console.error('Error searching:', error);
+      setAnimes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setText(value);
+
+    if (value.length > 2) {
+      clearTimeout(window.searchTimeout);
+      window.searchTimeout = setTimeout(() => searchAnime(value), 500);
+    } else {
+      setAnimes([]);
+    }
+  };
+
+  // Handle search focus
+  const handleSearchFocus = () => {
+    setIsSearchExpanded(true);
+  };
+
+  // Add this effect to close the dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setIsSearchExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Focus input when search expands
+  useEffect(() => {
+    if (isSearchExpanded && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isSearchExpanded]);
 
   return (
     <header
@@ -57,7 +191,7 @@ function Navbar() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="ml-2 font-bold text-xl text-white">WeNime</span>
+            <span className="ml-2 font-bold text-xl text-white">WeTV</span>
           </div>
         </Link>
 
@@ -96,7 +230,7 @@ function Navbar() {
             to="/anime"
             className={`font-medium ${
               location.pathname.includes('/anime')
-                ? 'text-blue-500'
+                ? 'text-orange-500'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -112,34 +246,18 @@ function Navbar() {
 
         {/* Right side - search and user */}
         <div className="flex items-center gap-3 ml-auto">
-          <div className="relative">
-            {/* <Input
-              type="search"
-              placeholder="Search..."
-              className="w-[240px] bg-gray-800/50 border-gray-700 rounded-full focus-visible:ring-primary"
-            />
-            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg
-                className="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+          <div className="relative search-container" ref={searchContainerRef}>
+            <div
+              className={`p-3 overflow-hidden ${
+                isSearchExpanded ? 'w-[270px]' : 'w-[40px]'
+              } h-[40px] bg-gray-800/50 shadow-[2px_2px_20px_rgba(0,0,0,0.08)] rounded-full flex items-center transition-all duration-300`}
+            >
+              <div
+                className="flex items-center justify-center fill-white"
+                onClick={handleSearchFocus}
               >
-                <path
-                  d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button> */}
-            <div className="p-3 overflow-hidden w-[40px] h-[40px] hover:w-[270px] bg-gray-800/50 shadow-[2px_2px_20px_rgba(0,0,0,0.08)] rounded-full flex group items-center hover:duration-300 duration-300">
-              <div className="flex items-center justify-center fill-white">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  id="Isolation_Mode"
-                  data-name="Isolation Mode"
                   viewBox="0 0 24 24"
                   width="18"
                   height="18"
@@ -148,10 +266,64 @@ function Navbar() {
                 </svg>
               </div>
               <input
+                ref={inputRef}
                 type="text"
-                className="outline-none text-[20px] bg-transparent w-full text-white font-normal px-4"
+                className="outline-none text-[16px] bg-transparent w-full text-white font-normal px-4"
+                value={text}
+                onChange={handleChange}
+                onFocus={handleSearchFocus}
+                placeholder="Search anime..."
               />
             </div>
+
+            {/* Search Results Dropdown */}
+            {isSearchExpanded && (
+              <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-gray-900 rounded-md shadow-lg z-50">
+                {loading ? (
+                  // Skeleton Loader
+                  <div className="p-2">
+                    {[...Array(5)].map((_, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 p-2 animate-pulse"
+                      >
+                        <div className="w-8 h-10 bg-gray-700 rounded"></div>
+                        <div className="flex-1 h-4 bg-gray-700 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : animes.length > 0 ? (
+                  animes.map((anime, index) => (
+                    <Link
+                      key={index}
+                      to={`/details/${anime.animeId}`}
+                      className="block px-4 py-2 text-sm text-white hover:bg-gray-800 border-b border-gray-800 last:border-b-0"
+                      onClick={() => {
+                        setAnimes([]);
+                        setIsSearchExpanded(false);
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <img
+                          src={anime.poster}
+                          alt={anime.title}
+                          className="w-8 h-10 object-cover mr-2 rounded"
+                          onError={(e) => {
+                            e.target.src =
+                              '/placeholder.svg?height=100&width=70';
+                          }}
+                        />
+                        <span className="line-clamp-1">{anime.title}</span>
+                      </div>
+                    </Link>
+                  ))
+                ) : text.length > 2 ? (
+                  <div className="p-4 text-sm text-gray-400 text-center">
+                    No results found
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
 
           <button className="text-gray-400 hover:text-white">
@@ -195,11 +367,11 @@ function Navbar() {
             </svg>
           </button>
 
-          <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+          <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
             U
           </div>
 
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4">
+          <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4">
             <svg
               className="h-4 w-4 mr-1"
               viewBox="0 0 24 24"
@@ -217,7 +389,7 @@ function Navbar() {
             APP
           </Button>
 
-          <Button className="bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white rounded-full px-4">
+          <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full px-4">
             VIP
           </Button>
         </div>
