@@ -25,6 +25,7 @@ function OngoingSection() {
           type: anime.type,
           isNew: false,
           isVip: false,
+          
           genres: anime.genreList.map((genre) => ({
             title: genre.title, // Nama genre
             genreId: genre.genreId, // ID genre untuk link

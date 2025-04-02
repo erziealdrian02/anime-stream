@@ -6,7 +6,7 @@ function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">WeTV Clone</h3>
+            <h3 className="font-bold text-lg mb-4">WeNime</h3>
             <p className="text-gray-400 text-sm">
               The best streaming platform for Asian dramas, variety shows, and
               movies.
@@ -216,7 +216,7 @@ function Footer() {
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
-              WeTV
+              WeNime
             </Link>
             .
           </p>

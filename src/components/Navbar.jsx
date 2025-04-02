@@ -191,7 +191,7 @@ function Navbar() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="ml-2 font-bold text-xl text-white">WeTV</span>
+            <span className="ml-2 font-bold text-xl text-white">WeNime</span>
           </div>
         </Link>
 

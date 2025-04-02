@@ -127,7 +127,7 @@ function ShowBigCard({ show }) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // Add your play functionality here
+                  window.location.href = `/details/${show.id}`;
                 }}
               >
                 <svg

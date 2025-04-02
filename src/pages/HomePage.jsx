@@ -63,7 +63,7 @@ function HomePage() {
         {/* Top Trending */}
         <PopularSection />
 
-        {/* Rekomendasi WeTV untuk Anda */}
+        {/* Movie Section */}
         <MovieSection />
       </div>
     </div>
