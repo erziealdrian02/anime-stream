@@ -197,7 +197,7 @@ function Navbar() {
 
         {/* Main navigation */}
         <nav className="flex items-center space-x-6 text-sm">
-          <Link
+          {/* <Link
             to="/"
             className={`font-medium ${
               location.pathname === '/'
@@ -241,7 +241,7 @@ function Navbar() {
           </Link>
           <Link to="/semua" className="text-gray-400 hover:text-white">
             Semua
-          </Link>
+          </Link> */}
         </nav>
 
         {/* Right side - search and user */}

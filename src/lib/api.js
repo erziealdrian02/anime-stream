@@ -349,19 +349,55 @@ export async function fetchMoreAnime(episodeId) {
 export async function fetchEpisodeAnime(episodeId) {
   try {
     const response = await fetch(
-      `http://localhost:3001/samehadaku/episode/${episodeId}`
+      `https://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
     );
     const data = await response.json();
-    console.log(data);
+    console.log('result dari lib', data);
+
+    if (data.ok && data.data) {
+      return data.data; // This returns the data directly
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching anime episode:', error);
+    return null;
+  }
+}
+
+export async function fetchStreamAnime(serverId) {
+  try {
+    const response = await fetch(
+      `https://ponflix-api.vercel.app/samehadaku/server/${serverId}`
+    );
+    const data = await response.json();
+    console.log('result dari lib', data);
+    if (data.ok && data.data) {
+      return data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching anime episode:', error);
+    return null;
+  }
+}
+
+// Function to fetch server data
+export async function fetchServerData(serverId) {
+  try {
+    const response = await fetch(
+      `http://localhost:3001/samehadaku/server/${serverId}`
+    );
+    const data = await response.json();
 
     if (data.ok && data.data) {
       return data.data;
     }
 
-    return [];
+    return null;
   } catch (error) {
-    console.error('Error fetching ongoing anime:', error);
-    return [];
+    console.error('Error fetching server data:', error);
+    return null;
   }
 }
 
