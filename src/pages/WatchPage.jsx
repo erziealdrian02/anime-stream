@@ -150,56 +150,47 @@ function WatchPage() {
 
               {showComments ? (
                 <div className="py-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 rounded-full bg-gray-700"></div>
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        placeholder="Tulis komentar..."
-                        className="w-full bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-sm"
-                      />
-                    </div>
-                  </div>
                   <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gray-700 flex-shrink-0"></div>
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">
+                          English Title
+                        </h3>
+                        <p className="text-xl text-gray-300">Ini Title</p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Synopsis</h3>
+                        <p className="text-gray-300">Synopsissssssssss</p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Producer</h3>
+                        <p className="text-gray-300">
+                          Producerrrrrrrrrrrrrrrrrrrrrrrrs Name
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Studios</h3>
+                        <p className="text-gray-300">This is Studios</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">User{i}</span>
-                            <span className="text-xs text-gray-400">
-                              2 jam yang lalu
-                            </span>
-                          </div>
-                          <p className="text-sm mt-1">
-                            Ini adalah komentar tentang episode ini. Sangat
-                            menarik!
-                          </p>
-                          <div className="flex items-center gap-4 mt-2">
-                            <button className="text-xs text-gray-400 flex items-center gap-1">
-                              <svg
-                                className="h-4 w-4"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M7 22V11M2 13V20C2 21.1046 2.89543 22 4 22H17.4262C18.907 22 20.1662 20.9197 20.3914 19.4562L21.4683 12.4562C21.7479 10.6389 20.3418 9 18.5032 9H15C14.4477 9 14 8.55228 14 8V4.46584C14 3.10399 12.896 2 11.5342 2C11.2093 2 10.915 2.1913 10.7831 2.48812L7.26394 10.4881C7.10344 10.8414 6.74532 11.0602 6.35235 11.0602L4 11.0602C2.89543 11.0602 2 11.9556 2 13.0602V13Z"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                              23
-                            </button>
-                            <button className="text-xs text-gray-400">
-                              Balas
-                            </button>
-                          </div>
+                          <h3 className="font-semibold">Release Year</h3>
+                          <p className="text-gray-300">2023</p>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Rating</h3>
+                          <p className="text-gray-300">3.3</p>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Duration</h3>
+                          <p className="text-gray-300">24 min</p>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Status</h3>
+                          <p className="text-gray-300">On Going</p>
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
               ) : (

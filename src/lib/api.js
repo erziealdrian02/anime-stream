@@ -346,7 +346,7 @@ export async function fetchMoreAnime(episodeId) {
   }
 }
 
-export async function fetchWatchAnime(episodeId) {
+export async function fetchEpisodeAnime(episodeId) {
   try {
     const response = await fetch(
       `http://localhost:3001/samehadaku/episode/${episodeId}`
