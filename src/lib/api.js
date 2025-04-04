@@ -377,13 +377,60 @@ export async function fetchMovieAnime() {
 
 export async function fetchDetailAnime(id) {
   try {
+    const response = await fetch(`http://localhost:3001/otakudesu/anime/${id}`);
+    const result = await response.json();
+
+    const animeData = result.data;
+    console.log('resul dari Detail lib', animeData);
+
+    if (result.ok && result.data.episodeList) {
+      const episodes = result.data.episodeList;
+      const moreThanTwenty = episodes.length > 25; // Menentukan apakah lebih dari 50 episode
+
+      if (episodes.length > 25) {
+        // Jika lebih dari 25, hanya ambil satu episode dari setiap kelompok 25 episode
+        const selectedEpisodes = [];
+        const groupSize = 25;
+
+        for (let i = 0; i < episodes.length; i += groupSize) {
+          selectedEpisodes.push(episodes[i]); // Ambil episode pertama dari setiap kelompok
+        }
+
+        return { episodes: selectedEpisodes, animeData, moreThanTwenty };
+      } else {
+        // Jika 25 atau kurang, ambil recommendedEpisodeList dari API kedua
+        const episodeId = episodes[0].episodeId; // Ambil episodeId dari episode pertama
+        const episodeResponse = await fetch(
+          `http://localhost:3001/otakudesu/episode/${episodeId}`
+        );
+        const episodeData = await episodeResponse.json();
+        console.log('episodeData dari lib', episodeData);
+
+        if (episodeData.ok && episodeData.data.info.episodeList) {
+          const groupedEpisodes = episodeData.data.info.episodeList;
+          return { episodes: groupedEpisodes, animeData, moreThanTwenty };
+        }
+
+        return { episodes: [], animeData, moreThanTwenty };
+      }
+    }
+
+    return { episodes: [], animeData: null, moreThanTwenty: false };
+  } catch (error) {
+    console.error('Error fetching anime details:', error);
+    return { episodes: [], animeData: null, moreThanTwenty: false };
+  }
+}
+
+export async function fetchDetailMovie(id) {
+  try {
     const response = await fetch(
       `http://localhost:3001/samehadaku/anime/${id}`
     );
     const result = await response.json();
 
     const animeData = result.data;
-    console.log('resul dari lib', animeData);
+    console.log('resul dari Movie lib', animeData);
 
     if (result.ok && result.data.episodeList) {
       const episodes = result.data.episodeList;
@@ -406,7 +453,7 @@ export async function fetchDetailAnime(id) {
           `http://localhost:3001/samehadaku/episode/${episodeId}`
         );
         const episodeData = await episodeResponse.json();
-        console.log('episodeData dari lib', episodeId);
+        console.log('episodeData dari lib', episodeData);
 
         if (episodeData.ok && episodeData.data.recommendedEpisodeList) {
           const groupedEpisodes = episodeData.data.recommendedEpisodeList;
@@ -446,7 +493,7 @@ export async function fetchMoreAnime(episodeId) {
 export async function fetchEpisodeAnime(episodeId) {
   try {
     const response = await fetch(
-      `https://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
+      `http://localhost:3001/samehadaku/episode/${episodeId}`
     );
     const data = await response.json();
     // console.log('result dari lib', data);
@@ -465,7 +512,7 @@ export async function fetchEpisodeAnime(episodeId) {
 export async function fetchStreamAnime(serverId) {
   try {
     const response = await fetch(
-      `https://ponflix-api.vercel.app/samehadaku/server/${serverId}`
+      `http://localhost:3001/samehadaku/server/${serverId}`
     );
     const data = await response.json();
     // console.log('result dari lib', data);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchDetailAnime } from '../lib/api';
+import { fetchDetailMovie } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import ShowCard from '../components/ShowCard';
@@ -12,7 +12,7 @@ import {
   RecommendationsSkeletonLoader,
 } from '../components/SkeletonLoadersDetail';
 
-function DetailsPage() {
+function DetailsMoviePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [show, setShow] = useState({
@@ -59,7 +59,7 @@ function DetailsPage() {
           episodes: fetchedEpisodes,
           animeData,
           moreThanTwenty,
-        } = await fetchDetailAnime(id);
+        } = await fetchDetailMovie(id);
 
         // Set the moreThanTwenty flag from the API response
         setMoreThanTwenty(moreThanTwenty);
@@ -74,7 +74,7 @@ function DetailsPage() {
             : animeData.synopsis.paragraphs || '';
 
           setShow({
-            title: animeData.title || 'Unknown Title',
+            title: formatTitle(id) || 'Unknown Title',
             english: animeData.english || '',
             description: description,
             posterUrl: animeData.poster || '',
@@ -217,7 +217,7 @@ function DetailsPage() {
   const handleWatchNow = () => {
     // Navigate to the first episode if available
     if (episodes.length > 0) {
-      navigate(`/watch/${id}?ep=${episodes[0].episodeId}`);
+      navigate(`/watch/movie/${id}?ep=${episodes[0].episodeId}`);
     }
   };
 
@@ -292,7 +292,7 @@ function DetailsPage() {
                   </svg>
                   Watch Now
                 </Button>
-                <Button variant="outline">
+                <Button onClick={handleWatchNow} variant="outline">
                   <svg
                     className="mr-2 h-4 w-4"
                     viewBox="0 0 24 24"
@@ -307,39 +307,7 @@ function DetailsPage() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  Add to List
-                </Button>
-                <Button variant="outline" size="icon">
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7 11V17M12 8V17M17 14V17M8 7.8L12 4L16 7.8M3 20H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Button>
-                <Button variant="outline" size="icon">
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M4 12V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V12M16 6L12 2M12 2L8 6M12 2V15"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  Download
                 </Button>
               </div>
             </div>
@@ -371,7 +339,7 @@ function DetailsPage() {
             >
               Details
             </button>
-            <button
+            {/* <button
               className={`pb-3 px-1 text-sm font-medium ${
                 activeTab === 'related'
                   ? 'text-white border-b-2 border-primary'
@@ -380,7 +348,7 @@ function DetailsPage() {
               onClick={() => setActiveTab('related')}
             >
               More Like This
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -389,191 +357,44 @@ function DetailsPage() {
           {activeTab === 'episodes' && (
             <div>
               {/* List View */}
-              {(!moreThanTwenty || episodeViewMode === 'list') && (
-                <div className="space-y-4">
-                  {console.log('Ini Episodessssssss', episodes)}
-                  {episodes.map((episode, index) => (
-                    <div
-                      key={`episode-list-${episode.episodeId || index}`}
-                      className="flex gap-4 p-4 rounded-md bg-gray-900 hover:bg-gray-800 cursor-pointer"
-                      onClick={() =>
-                        navigate(`/watch/${id}?ep=${episode.episodeId}`)
-                      }
-                    >
-                      <div className="relative w-40 aspect-video flex-shrink-0">
-                        {/* <h1>${episode.episodeId}</h1> */}
-                        <img
-                          src={
-                            show.posterUrl ||
-                            '/placeholder.svg?height=180&width=320'
-                          }
-                          alt={renderContent(episode.title)}
-                          className="absolute inset-0 w-full h-full object-cover rounded-md"
-                        />
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-xs px-2 py-1 rounded">
-                          {show.duration || ''}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">
-                          {renderContent(episode.episodeId)}
-                        </h4>
-                        <p className="text-sm text-gray-400 mt-2 line-clamp-2">
-                          {renderContent(episode.description)}
-                        </p>
-                        <div className="mt-2 text-xs text-gray-500">
-                          {episode.releaseDate || 'Unknown release date'}
-                        </div>
+              <div className="space-y-4">
+                {console.log('Ini Episodessssssss', episodes)}
+                {episodes.map((episode, index) => (
+                  <div
+                    key={`episode-list-${episode.episodeId || index}`}
+                    className="flex gap-4 p-4 rounded-md bg-gray-900 hover:bg-gray-800 cursor-pointer"
+                    onClick={() =>
+                      navigate(`/watch/movie/${id}?ep=${episode.episodeId}`)
+                    }
+                  >
+                    <div className="relative w-40 aspect-video flex-shrink-0">
+                      {/* <h1>${episode.episodeId}</h1> */}
+                      <img
+                        src={
+                          show.posterUrl ||
+                          '/placeholder.svg?height=180&width=320'
+                        }
+                        alt={renderContent(episode.title)}
+                        className="absolute inset-0 w-full h-full object-cover rounded-md"
+                      />
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-xs px-2 py-1 rounded">
+                        {show.duration || ''}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Dropdown View - Only shown if moreThanTwenty is true */}
-              {moreThanTwenty && episodeViewMode === 'dropdown' && (
-                <div className="space-y-2">
-                  {Object.values(groupedEpisodes)
-                    .flat()
-                    .map((episode, index) => {
-                      // Create a unique key using index and episodeId
-                      const episodeKey = `dropdown-${
-                        episode.episodeId || index
-                      }`;
-                      return (
-                        <div
-                          key={episodeKey}
-                          className="border border-gray-800 rounded-md overflow-hidden"
-                        >
-                          <div
-                            className="bg-gray-900 p-4 flex justify-between items-center cursor-pointer"
-                            onClick={() => toggleEpisode(episodeKey)}
-                          >
-                            <h3 className="font-medium">
-                              {episode.episodeNumber || index + 1}.{' '}
-                              {renderContent(episode.title)}
-                            </h3>
-                            <svg
-                              className={`h-5 w-5 transition-transform ${
-                                expandedEpisode === episodeKey
-                                  ? 'transform rotate-180'
-                                  : ''
-                              }`}
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6 9L12 15L18 9"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-
-                          {expandedEpisode === episodeKey && (
-                            <div className="bg-gray-800/50 p-4">
-                              <div className="flex gap-4 mb-4">
-                                <div className="relative w-32 aspect-video flex-shrink-0">
-                                  <img
-                                    src={
-                                      episode.poster ||
-                                      '/placeholder.svg?height=180&width=320'
-                                    }
-                                    alt={renderContent(episode.title)}
-                                    className="absolute inset-0 w-full h-full object-cover rounded-md"
-                                  />
-                                  <div className="absolute bottom-1 right-1 bg-black/80 text-xs px-1 rounded">
-                                    {episode.duration || '24 min'}
-                                  </div>
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-xs text-gray-400 mt-1">
-                                    {renderContent(episode.description) ||
-                                      'No description available'}
-                                  </p>
-                                  <div className="mt-2 text-xs text-gray-500">
-                                    {episode.releaseDate ||
-                                      'Unknown release date'}
-                                  </div>
-                                  <button
-                                    className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(
-                                        `/watch/${id}?ep=${episode.episodeId}`
-                                      );
-                                    }}
-                                  >
-                                    Watch
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Recommended Anime Section */}
-                              <div className="mt-4 border-t border-gray-700 pt-4">
-                                <h4 className="text-sm font-medium mb-3">
-                                  Recommended Anime
-                                </h4>
-
-                                {loading.episodes[episodeKey] ? (
-                                  <RecommendationsSkeletonLoader />
-                                ) : recommendedAnime[episodeKey] &&
-                                  recommendedAnime[episodeKey].length > 0 ? (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {recommendedAnime[episodeKey].map(
-                                      (anime, idx) => (
-                                        <div
-                                          key={`rec-${episodeKey}-${idx}`}
-                                          className="flex gap-2 p-2 bg-gray-800 rounded-md hover:bg-gray-700 cursor-pointer"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate(
-                                              `/watch/${anime.id}?ep=${
-                                                anime.episodeId || ''
-                                              }`
-                                            );
-                                          }}
-                                        >
-                                          <div className="relative w-16 h-12 flex-shrink-0">
-                                            <img
-                                              src={
-                                                anime.poster ||
-                                                '/placeholder.svg?height=90&width=160'
-                                              }
-                                              alt={anime.title}
-                                              className="absolute inset-0 w-full h-full object-cover rounded"
-                                            />
-                                          </div>
-                                          <div className="flex-1 overflow-hidden">
-                                            <p className="text-xs font-medium truncate">
-                                              {anime.title}
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                              {anime.episodeNumber
-                                                ? `Episode ${anime.episodeNumber}`
-                                                : 'Unknown episode'}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )
-                                    )}
-                                  </div>
-                                ) : (
-                                  <p className="text-xs text-gray-400 text-center py-2">
-                                    No recommendations available
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+                    <div className="flex-1">
+                      <h4 className="font-medium">
+                        {renderContent(episode.title)}
+                      </h4>
+                      {/* <p className="text-sm text-gray-400 mt-2 line-clamp-2">
+                        {renderContent(show.description)}
+                      </p> */}
+                      <div className="mt-2 text-xs text-gray-500">
+                        {episode.releaseDate || 'Unknown release date'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -651,4 +472,4 @@ function DetailsPage() {
   );
 }
 
-export default DetailsPage;
+export default DetailsMoviePage;
