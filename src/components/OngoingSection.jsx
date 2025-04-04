@@ -15,21 +15,22 @@ function OngoingSection() {
       try {
         setLoading(true);
         const data = await fetchOngoingAnime();
+
+        if (!Array.isArray(data)) {
+          console.error('Data animeList tidak valid:', data);
+          return;
+        }
+
         const formattedData = data.map((anime) => ({
           id: anime.animeId,
           title: anime.title,
           posterUrl: anime.poster,
           href: anime.href,
-          score: anime.score,
-          status: anime.status,
-          type: anime.type,
+          score: anime.score, // Sekarang pasti ada
+          status: anime.status, // Sekarang pasti ada
           isNew: false,
           isVip: false,
-          
-          genres: anime.genreList.map((genre) => ({
-            title: genre.title, // Nama genre
-            genreId: genre.genreId, // ID genre untuk link
-          })),
+          genres: anime.genres, // Sekarang pasti ada
         }));
 
         setShows(formattedData);

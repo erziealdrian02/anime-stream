@@ -115,6 +115,7 @@ function DetailsPage() {
                 episode.episodeNumber || episode.episodeId || 'Unknown'
               }`,
           }));
+          console.log('fetchedEpisodes', fetchedEpisodes);
 
           setEpisodes(sanitizedEpisodes);
 
@@ -387,46 +388,20 @@ function DetailsPage() {
         <div className="mt-6">
           {activeTab === 'episodes' && (
             <div>
-              {/* <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Episodes</h2>
-                {moreThanTwenty && (
-                  <div className="flex items-center space-x-2">
-                    <button
-                      className={`px-3 py-1 text-sm rounded-full ${
-                        episodeViewMode === 'list'
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-800 text-gray-300'
-                      }`}
-                      onClick={() => setEpisodeViewMode('list')}
-                    >
-                      List View
-                    </button>
-                    <button
-                      className={`px-3 py-1 text-sm rounded-full ${
-                        episodeViewMode === 'dropdown'
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-800 text-gray-300'
-                      }`}
-                      onClick={() => setEpisodeViewMode('dropdown')}
-                    >
-                      Dropdown View
-                    </button>
-                  </div>
-                )}
-              </div> */}
-
-              {/* Conditionally render view based on moreThanTwenty flag */}
+              {/* List View */}
               {(!moreThanTwenty || episodeViewMode === 'list') && (
                 <div className="space-y-4">
+                  {console.log('Ini Episodessssssss', episodes)}
                   {episodes.map((episode, index) => (
                     <div
-                      key={episode.episodeId || index}
+                      key={`episode-list-${episode.episodeId || index}`}
                       className="flex gap-4 p-4 rounded-md bg-gray-900 hover:bg-gray-800 cursor-pointer"
                       onClick={() =>
                         navigate(`/watch/${id}?ep=${episode.episodeId}`)
                       }
                     >
                       <div className="relative w-40 aspect-video flex-shrink-0">
+                        {/* <h1>${episode.episodeId}</h1> */}
                         <img
                           src={
                             episode.poster ||
@@ -441,7 +416,7 @@ function DetailsPage() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">
-                          {renderContent(episode.title)}
+                          {renderContent(episode.episodeId)}
                         </h4>
                         <p className="text-sm text-gray-400 mt-2 line-clamp-2">
                           {renderContent(episode.description)}
@@ -461,8 +436,10 @@ function DetailsPage() {
                   {Object.values(groupedEpisodes)
                     .flat()
                     .map((episode, index) => {
-                      const episodeKey =
-                        episode.episodeId || `episode-${index}`;
+                      // Create a unique key using index and episodeId
+                      const episodeKey = `dropdown-${
+                        episode.episodeId || index
+                      }`;
                       return (
                         <div
                           key={episodeKey}
@@ -549,7 +526,7 @@ function DetailsPage() {
                                     {recommendedAnime[episodeKey].map(
                                       (anime, idx) => (
                                         <div
-                                          key={idx}
+                                          key={`rec-${episodeKey}-${idx}`}
                                           className="flex gap-2 p-2 bg-gray-800 rounded-md hover:bg-gray-700 cursor-pointer"
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -654,7 +631,7 @@ function DetailsPage() {
                 {Array.isArray(relatedShows) && relatedShows.length > 0 ? (
                   relatedShows.map((relatedShow, index) => (
                     <ShowCard
-                      key={relatedShow.id || index}
+                      key={`related-${relatedShow.id || index}`}
                       show={relatedShow}
                       showTitle
                       showRating

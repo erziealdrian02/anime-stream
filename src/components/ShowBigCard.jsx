@@ -101,15 +101,14 @@ function ShowBigCard({ show }) {
           <div className="absolute top-2 left-2">
             {/* Status hanya muncul jika type bukan "Movie" */}
             {show.type !== 'Movie' && (
-              <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded">
+              <div
+                className={`${
+                  show.status === 'Ongoing' ? 'bg-yellow-600' : 'bg-green-600'
+                } text-white text-xs font-bold px-2 py-0.5 rounded`}
+              >
                 {show.status}
               </div>
             )}
-
-            {/* Type tetap muncul */}
-            <div className="bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 mt-1 rounded">
-              {show.type}
-            </div>
           </div>
 
           {/* Hover overlay - show conditionally based on hover state or isMobileHover */}

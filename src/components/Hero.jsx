@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { getFeaturedShows } from '../lib/api';
 import { fetchOngoingAnime } from '../lib/api';
@@ -44,19 +45,18 @@ function Hero() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
       <div className="absolute bottom-0 left-0 p-8 w-full">
         <div className="container mx-auto">
-          <div className="max-w-xl space-y-4">
+          <div className="max-w-3xl space-y-4">
             <h1 className="text-5xl font-bold">{featuredAnime.title}</h1>
             <div className="text-lg font-semibold text-yellow-400">
-              RETURN OF THE MUSIC GOD
+              {featuredAnime.japanese}
             </div>
-            <p className="text-gray-300">Bangun dengan kekuatan musik 🎵</p>
+            <p className="text-gray-300">{featuredAnime.synopsis}</p>
             <div className="flex gap-3 mt-4">
-              <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full">
-                Tonton Trailer
-              </button>
-              <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full">
-                Tonton Sekarang
-              </button>
+              <Link to={`/details/${featuredAnime.animeId}`}>
+                <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full">
+                  Tonton Sekarang
+                </button>
+              </Link>
             </div>
           </div>
         </div>

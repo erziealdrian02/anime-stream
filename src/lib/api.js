@@ -162,14 +162,62 @@ const mockEpisodes = [
 
 export async function fetchOngoingAnime() {
   try {
-    const response = await fetch('http://localhost:3001/samehadaku/ongoing');
+    const response = await fetch('http://localhost:3001/otakudesu/ongoing');
     const data = await response.json();
+    // console.log('Result dari lib:', data);
 
-    if (data.ok && data.data.animeList) {
-      return data.data.animeList;
+    if (
+      !response.ok ||
+      !data?.data?.animeList ||
+      !Array.isArray(data.data.animeList)
+    ) {
+      return [];
     }
 
-    return [];
+    const animeList = data.data.animeList;
+
+    const detailedAnimeList = await Promise.all(
+      animeList.map(async (anime) => {
+        try {
+          const detailsResponse = await fetch(
+            `http://localhost:3001/otakudesu/anime/${anime.animeId}`
+          );
+
+          if (!detailsResponse.ok) {
+            throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+          }
+
+          const details = await detailsResponse.json();
+          // console.log('Details dari lib:', details);
+
+          // Akses data melalui properti 'data' terlebih dahulu
+          const animeDetails = details.data;
+
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            status: animeDetails?.status ?? 'Unknown',
+            japanese: animeDetails?.japanese ?? '',
+            duration: animeDetails?.duration ?? '',
+            aired: animeDetails?.aired ?? '',
+            genres: Array.isArray(animeDetails?.genreList)
+              ? animeDetails.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
+              : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${anime.animeId}:`, error);
+          return null;
+        }
+      })
+    );
+
+    return detailedAnimeList.filter(Boolean);
   } catch (error) {
     console.error('Error fetching ongoing anime:', error);
     return [];
@@ -178,14 +226,62 @@ export async function fetchOngoingAnime() {
 
 export async function fetchCompleteAnime() {
   try {
-    const response = await fetch('http://localhost:3001/samehadaku/completed');
+    const response = await fetch('http://localhost:3001/otakudesu/completed');
     const data = await response.json();
+    // console.log('Result dari lib:', data);
 
-    if (data.ok && data.data.animeList) {
-      return data.data.animeList;
+    if (
+      !response.ok ||
+      !data?.data?.animeList ||
+      !Array.isArray(data.data.animeList)
+    ) {
+      return [];
     }
 
-    return [];
+    const animeList = data.data.animeList;
+
+    const detailedAnimeList = await Promise.all(
+      animeList.map(async (anime) => {
+        try {
+          const detailsResponse = await fetch(
+            `http://localhost:3001/otakudesu/anime/${anime.animeId}`
+          );
+
+          if (!detailsResponse.ok) {
+            throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+          }
+
+          const details = await detailsResponse.json();
+          // console.log('Details dari lib:', details);
+
+          // Akses data melalui properti 'data' terlebih dahulu
+          const animeDetails = details.data;
+
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            status: animeDetails?.status ?? 'Unknown',
+            japanese: animeDetails?.japanese ?? '',
+            duration: animeDetails?.duration ?? '',
+            aired: animeDetails?.aired ?? '',
+            genres: Array.isArray(animeDetails?.genreList)
+              ? animeDetails.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
+              : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${anime.animeId}:`, error);
+          return null;
+        }
+      })
+    );
+
+    return detailedAnimeList.filter(Boolean);
   } catch (error) {
     console.error('Error fetching ongoing anime:', error);
     return [];
@@ -247,9 +343,9 @@ export async function fetchGenresWithPosters() {
   }
 }
 
-export async function fetchMovieAnime() {
+export async function fetchPopularAnime() {
   try {
-    const response = await fetch('http://localhost:3001/samehadaku/movies');
+    const response = await fetch('http://localhost:3001/samehadaku/popular');
     const data = await response.json();
 
     if (data.ok && data.data.animeList) {
@@ -263,9 +359,9 @@ export async function fetchMovieAnime() {
   }
 }
 
-export async function fetchPopularAnime() {
+export async function fetchMovieAnime() {
   try {
-    const response = await fetch('http://localhost:3001/samehadaku/popular');
+    const response = await fetch('http://localhost:3001/samehadaku/movies');
     const data = await response.json();
 
     if (data.ok && data.data.animeList) {
@@ -310,6 +406,7 @@ export async function fetchDetailAnime(id) {
           `http://localhost:3001/samehadaku/episode/${episodeId}`
         );
         const episodeData = await episodeResponse.json();
+        console.log('episodeData dari lib', episodeId);
 
         if (episodeData.ok && episodeData.data.recommendedEpisodeList) {
           const groupedEpisodes = episodeData.data.recommendedEpisodeList;
@@ -352,7 +449,7 @@ export async function fetchEpisodeAnime(episodeId) {
       `https://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
     );
     const data = await response.json();
-    console.log('result dari lib', data);
+    // console.log('result dari lib', data);
 
     if (data.ok && data.data) {
       return data.data; // This returns the data directly
@@ -371,7 +468,7 @@ export async function fetchStreamAnime(serverId) {
       `https://ponflix-api.vercel.app/samehadaku/server/${serverId}`
     );
     const data = await response.json();
-    console.log('result dari lib', data);
+    // console.log('result dari lib', data);
     if (data.ok && data.data) {
       return data.data;
     }

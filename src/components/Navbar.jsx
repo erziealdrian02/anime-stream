@@ -30,7 +30,7 @@ function Navbar() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/samehadaku/search?q=${query}`
+        `http://localhost:3001/otakudesu/search?q=${query}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

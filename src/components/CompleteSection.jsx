@@ -20,15 +20,11 @@ function CompleteSection() {
           title: anime.title,
           posterUrl: anime.poster,
           href: anime.href,
-          score: anime.score,
-          status: anime.status,
-          type: anime.type,
+          score: anime.score, // Sekarang pasti ada
+          status: anime.status, // Sekarang pasti ada
           isNew: false,
           isVip: false,
-          genres: anime.genreList.map((genre) => ({
-            title: genre.title, // Nama genre
-            genreId: genre.genreId, // ID genre untuk link
-          })),
+          genres: anime.genres,
         }));
 
         setShows(formattedData);
