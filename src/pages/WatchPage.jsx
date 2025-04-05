@@ -140,7 +140,7 @@ function WatchPage() {
         // Get data from API
         const id = getEpisodeIdFromUrl();
         const animeData = await fetchEpisodeAnime(id);
-        console.log('animeData', animeData);
+        // console.log('animeData', animeData);
 
         if (animeData) {
           // Make sure description is a string, not an object
@@ -149,36 +149,34 @@ function WatchPage() {
             : animeData.synopsis?.paragraphs || '';
 
           setShow({
-            title: animeData.title || 'Unknown Title',
-            id: animeData.animeId || '',
-            description: description,
-            posterUrl: animeData.poster || '',
-            genres: Array.isArray(animeData.genreList)
-              ? animeData.genreList
+            idDetail: animeData.episodeId,
+            titleDetail: animeData.title,
+            releaseTimeDetail: animeData.releaseTime,
+            genresDetail: Array.isArray(animeData?.info.genreList)
+              ? animeData.info.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
               : [],
-            watchServer: Array.isArray(animeData.server.qualities)
-              ? animeData.server.qualities
-              : [],
-            releasedOn: animeData.releasedOn || 'Unknown Studios',
-            defaultStreamingUrl:
-              animeData.defaultStreamingUrl || 'Unknown Producers',
           });
-          console.log('watchServer', animeData.server.qualities);
+          // console.log('episodeList', animeData.info.episodeList);
 
           // Set episodes from recommendedEpisodeList
           if (
             animeData.recommendedEpisodeList &&
             Array.isArray(animeData.recommendedEpisodeList)
           ) {
-            setEpisodes(
-              animeData.recommendedEpisodeList.map((episode) => ({
-                id: episode.episodeId,
-                title: episode.title,
-                thumbnailUrl: episode.poster,
-                releaseDate: episode.releaseDate,
-                duration: '24 min', // Default duration since it's not in the data
-              }))
-            );
+            setEpisodes({
+              idEpisode: animeDetails.episodeId,
+              titleEpisode: animeDetails.title,
+              releaseTimeEpisode: animeDetails.releaseTime,
+              genresEpisode: Array.isArray(animeDetails?.info.genreList)
+                ? animeDetails.info.genreList.map((genre) => ({
+                    title: genre.title || 'Unknown',
+                    genreId: genre.genreId || '',
+                  }))
+                : [],
+            });
 
             // Set first episode as current episode
             if (animeData.recommendedEpisodeList.length > 0) {
@@ -341,7 +339,7 @@ function WatchPage() {
               <div className="flex-1">
                 <h1 className="text-xl font-bold">{show.title}</h1>
                 <div className="flex items-center gap-2 mt-1">
-                  {show.genres.map((genre, index) => (
+                  {/* {show.genres.map((genre, index) => (
                     <Link
                       key={index}
                       to={`/category/${genre.genreId || '#'}`}
@@ -350,7 +348,7 @@ function WatchPage() {
                     >
                       {genre.title}
                     </Link>
-                  ))}
+                  ))} */}
                 </div>
                 <div className="mt-4">
                   <h2 className="text-lg font-bold">Synopsis</h2>
@@ -471,9 +469,7 @@ function WatchPage() {
               {activeSection === 'download' && (
                 <div className="py-4">
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">
-                      Download EPS {currentEpisode.episodeNumber}
-                    </h3>
+                    <h3 className="text-lg font-semibold mb-3">Download EPS</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                       {['360p', '480p', '720p', '1080p'].map((resolution) => (
                         <a
@@ -510,7 +506,7 @@ function WatchPage() {
                           )}
                         </div>
                       </div>
-
+                      {/* {console.log('episodes', episodes)} */}
                       {episodes.length > 10 && (
                         <div className="bg-gray-900 p-3 rounded-md">
                           <h4 className="font-medium mb-2">

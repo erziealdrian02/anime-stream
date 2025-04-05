@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ShowMovieCard from '../components/ShowMovieCard';
-import { fetchEpisodeAnime, fetchStreamAnime } from '../lib/api';
+import { fetchEpisodeMovie, fetchStreamMovie } from '../lib/api';
 import VideoPlayer from '../components/VideoPlayer';
 import WatchPageSkeleton from '../components/loader/WatchPageSkeleton';
 
@@ -83,7 +83,7 @@ function WatchPage() {
 
     try {
       setVideoLoading(true);
-      const streamData = await fetchStreamAnime(serverId);
+      const streamData = await fetchStreamMovie(serverId);
       if (streamData && streamData.url) {
         setVideoUrl(streamData.url);
       } else {
@@ -141,7 +141,7 @@ function WatchPage() {
         setLoading(true);
         // Get data from API
         const id = getEpisodeIdFromUrl();
-        const animeData = await fetchEpisodeAnime(id);
+        const animeData = await fetchEpisodeMovie(id);
         console.log('animeData', animeData);
 
         if (animeData) {
