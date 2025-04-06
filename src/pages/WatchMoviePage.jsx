@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ShowMovieCard from '../components/ShowMovieCard';
 import { fetchEpisodeMovie, fetchStreamMovie } from '../lib/api';
-import VideoPlayer from '../components/VideoPlayer';
+import VideoMoviePlayer from '../components/VideoMoviePlayer';
 import WatchPageSkeleton from '../components/loader/WatchPageSkeleton';
 
 function getEpisodeIdFromUrl() {
@@ -253,7 +253,7 @@ function WatchPage() {
                 <div className="h-12 w-12 animate-spin border-4 border-primary border-t-transparent rounded-full"></div>
               </div>
             ) : videoUrl ? (
-              <VideoPlayer
+              <VideoMoviePlayer
                 src={videoUrl}
                 title={currentEpisode?.title || show.title}
               />

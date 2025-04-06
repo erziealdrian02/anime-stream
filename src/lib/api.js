@@ -492,100 +492,76 @@ export async function fetchMoreAnime(episodeId) {
 
 export async function fetchEpisodeAnime(episodeId) {
   try {
+    // First API call to get the main episode data
     const response = await fetch(
       `http://localhost:3001/otakudesu/episode/${episodeId}`
     );
     const data = await response.json();
-    console.log('result dari lib', data);
+    // console.log('data dari lib', data);
 
-    if (data.ok && data.data) {
-      return data.data; // This returns the data directly
+    // Check if we have valid data
+    if (!data.ok || !data.data) {
+      return {
+        originalData: null,
+        episodesInfo: [],
+      };
     }
 
-    return null;
+    const originalData = data.data;
+
+    // Get the episode list from the first API call
+    const episodeList = originalData.info?.episodeList || [];
+
+    // Loop through each episode to fetch detailed information
+    const episodesInfo = await Promise.all(
+      episodeList.map(async (episode) => {
+        try {
+          const episodeResponse = await fetch(
+            `http://localhost:3001/otakudesu/episode/${episode.episodeId}`
+          );
+
+          if (!episodeResponse.ok) {
+            throw new Error(`Failed to fetch data for ${episode.episodeId}`);
+          }
+
+          const episodeData = await episodeResponse.json();
+
+          // Extract only the title and genreList
+          const result = {
+            episodeId: episode.episodeId,
+            title: episodeData.data?.title || 'Unknown',
+            releaseTime: episodeData.data?.releaseTime || 'Unknown',
+            duration: episodeData.data?.info?.duration || 'Unknown',
+            genreList: episodeData.data?.info?.genreList || [],
+          };
+          // console.log('result dari lib', result);
+
+          return result;
+        } catch (error) {
+          console.error(
+            `Error fetching data for episode ${episode.episodeId}:`,
+            error
+          );
+          return null;
+        }
+      })
+    );
+
+    // console.log('originalData dari lib', originalData);
+    // console.log('episodesInfo dari lib', episodesInfo);
+
+    return {
+      originalData: originalData,
+      episodesInfo: episodesInfo.filter(Boolean),
+    };
   } catch (error) {
     console.error('Error fetching anime episode:', error);
-    return null;
+    return {
+      originalData: null,
+      episodesInfo: [],
+    };
   }
 }
-
-// export async function fetchEpisodeAnime(episodeId) {
-//   try {
-//     const response = await fetch(
-//       `http://localhost:3001/otakudesu/episode/${episodeId}`
-//     );
-//     const data = await response.json();
-//     console.log('Result dari lib:', data);
-
-//     // Based on the data you shared, the structure seems different
-//     // The episodeList exists directly in info, not in animeList
-//     if (
-//       !response.ok ||
-//       !data?.data?.info?.episodeList ||
-//       !Array.isArray(data.data.info.episodeList)
-//     ) {
-//       return [];
-//     }
-
-//     const episodeList = data.data.info.episodeList;
-//     console.log('episodeList dari lib:', episodeList);
-
-//     // You might not need to fetch details for each episode if all info is available
-//     // But if you do need additional details for each episode:
-//     const detailedEpisodeList = await Promise.all(
-//       episodeList.map(async (episode) => {
-//         try {
-//           // Make sure episodeId exists and not animeId
-//           const detailsResponse = await fetch(
-//             `http://localhost:3001/otakudesu/episode/${episode.episodeId}`
-//           );
-
-//           if (!detailsResponse.ok) {
-//             throw new Error(`Gagal mengambil data untuk ${episode.episodeId}`);
-//           }
-
-//           const details = await detailsResponse.json();
-//           const animeDetails = details.data;
-//           console.log('Details for episode:', episode);
-
-//           // Structure based on your API response
-//           return {
-//             idDetail: episode.episodeId,
-//             titleDetail: episode.title,
-//             releaseTimeDetail: episode.releaseTime,
-//             genresDetail: Array.isArray(episode?.info.genreList)
-//               ? episode.info.genreList.map((genre) => ({
-//                   title: genre.title || 'Unknown',
-//                   genreId: genre.genreId || '',
-//                 }))
-//               : [],
-//             idEpisode: animeDetails.episodeId,
-//             titleEpisode: animeDetails.title,
-//             releaseTimeEpisode: animeDetails.releaseTime,
-//             genresEpisode: Array.isArray(animeDetails?.info.genreList)
-//               ? animeDetails.info.genreList.map((genre) => ({
-//                   title: genre.title || 'Unknown',
-//                   genreId: genre.genreId || '',
-//                 }))
-//               : [],
-//             // Add additional properties from details if needed
-//           };
-//         } catch (error) {
-//           console.error(
-//             `Error fetching details for ${episode.episodeId}:`,
-//             error
-//           );
-//           return null;
-//         }
-//       })
-//     );
-
-//     return detailedEpisodeList.filter(Boolean);
-//   } catch (error) {
-//     console.error('Error fetching episode data:', error);
-//     return [];
-//   }
-// }
 
 export async function fetchEpisodeMovie(episodeId) {
   try {
@@ -606,19 +582,39 @@ export async function fetchEpisodeMovie(episodeId) {
   }
 }
 
+// Di fetchStreamAnime
 export async function fetchStreamAnime(serverId) {
   try {
     const response = await fetch(
-      `http://localhost:3001/otakudesu/server/${serverId}`
+      `http://localhost:3001/otakudesu/server/${serverId}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Jika memerlukan cookies/session
+      }
     );
-    const data = await response.json();
-    // console.log('result dari lib', data);
-    if (data.ok && data.data) {
-      return data.data;
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return null;
+
+    const data = await response.json();
+
+    // Jika URL adalah encoded, tambahkan parameter referer jika diperlukan
+    if (data.data?.url?.includes('desustream.info')) {
+      return {
+        ...data.data,
+        url: `${data.data.url}&referer=${encodeURIComponent(
+          window.location.href
+        )}`,
+      };
+    }
+
+    return data.data;
   } catch (error) {
-    console.error('Error fetching anime episode:', error);
+    console.error('Error fetching stream:', error);
     return null;
   }
 }
