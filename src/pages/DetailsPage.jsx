@@ -58,6 +58,7 @@ function DetailsPage() {
         const {
           episodes: fetchedEpisodes,
           animeData,
+          batchDetails,
           moreThanTwenty,
         } = await fetchDetailAnime(id);
 
@@ -86,6 +87,9 @@ function DetailsPage() {
             rating: animeData.score.value || 'N/A',
             duration: animeData.duration || 'Unknown Duration',
             status: animeData.status || 'Unknown Status',
+            downloadUrl: batchDetails.downloadUrl || [],
+            recommendedAnimeList:
+              animeData.recommendedAnimeList || 'Unknown Recomended',
           });
 
           // Set related shows if available
@@ -115,7 +119,7 @@ function DetailsPage() {
                 episode.episodeNumber || episode.episodeId || 'Unknown'
               }`,
           }));
-          console.log('fetchedEpisodes', fetchedEpisodes);
+          // console.log('fetchedEpisodes', fetchedEpisodes);
 
           setEpisodes(sanitizedEpisodes);
 
@@ -373,6 +377,16 @@ function DetailsPage() {
             </button>
             <button
               className={`pb-3 px-1 text-sm font-medium ${
+                activeTab === 'download'
+                  ? 'text-white border-b-2 border-primary'
+                  : 'text-gray-400'
+              }`}
+              onClick={() => setActiveTab('download')}
+            >
+              Download Batch
+            </button>
+            <button
+              className={`pb-3 px-1 text-sm font-medium ${
                 activeTab === 'related'
                   ? 'text-white border-b-2 border-primary'
                   : 'text-gray-400'
@@ -391,7 +405,7 @@ function DetailsPage() {
               {/* List View */}
               {(!moreThanTwenty || episodeViewMode === 'list') && (
                 <div className="space-y-4">
-                  {console.log('Ini Episodessssssss', episodes)}
+                  {/* {console.log('Ini Episodessssssss', episodes)} */}
                   {episodes.map((episode, index) => (
                     <div
                       key={`episode-list-${episode.episodeId || index}`}
@@ -416,13 +430,10 @@ function DetailsPage() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">
-                          {renderContent(episode.episodeId)}
+                          {renderContent(episode.title)}
                         </h4>
-                        <p className="text-sm text-gray-400 mt-2 line-clamp-2">
-                          {renderContent(episode.description)}
-                        </p>
                         <div className="mt-2 text-xs text-gray-500">
-                          {episode.releaseDate || 'Unknown release date'}
+                          {episode.releaseTime || 'Unknown release date'}
                         </div>
                       </div>
                     </div>
@@ -628,10 +639,67 @@ function DetailsPage() {
             <div>
               <h3 className="text-xl font-semibold mb-4">You May Also Like</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {Array.isArray(relatedShows) && relatedShows.length > 0 ? (
-                  relatedShows.map((relatedShow, index) => (
+                {/* {show.recommendedAnimeList &&
+                  show.recommendedAnimeList &&
+                  show.recommendedAnimeList.map((recommended) => (
+                    <Link
+                      to={`/details/${recommended.animeId}`}
+                      className="group"
+                    >
+                      <div className="relative aspect-[2/3] overflow-hidden rounded-md">
+                        <img
+                          src={
+                            recommended.posterUrl ||
+                            '/placeholder.svg?height=450&width=300'
+                          }
+                          alt={recommended.title}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {recommended.isVip && (
+                          <div className="absolute top-1 right-1 bg-yellow-500 text-xs font-bold px-1 py-0.5 rounded">
+                            VIP
+                          </div>
+                        )}
+                        {recommended.isNew && (
+                          <div className="absolute top-1 left-1 bg-red-500 text-xs font-bold px-1 py-0.5 rounded">
+                            NEW
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
+                          <div className="text-xs font-medium line-clamp-2">
+                            {recommended.title}
+                          </div>
+                          {showRating && (
+                            <div className="flex items-center mt-1">
+                              <span className="text-yellow-400 text-xs">★</span>
+                              <span className="text-xs ml-1">
+                                {recommended.rating}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {showTitle && (
+                        <div className="mt-1">
+                          <h3 className="text-sm font-medium line-clamp-1">
+                            {recommended.title}
+                          </h3>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {recommended.type === 'drama'
+                              ? 'Fantasy Melodrama'
+                              : 'Variety Show'}
+                          </p>
+                        </div>
+                      )}
+                    </Link>
+                  ))} */}
+                {console.log('show.recommendedAnimeList', show)}
+
+                {Array.isArray(show.recommendedAnimeList) &&
+                show.recommendedAnimeList.length > 0 ? (
+                  show.recommendedAnimeList.map((relatedShow) => (
                     <ShowCard
-                      key={`related-${relatedShow.id || index}`}
+                      key={`related-${relatedShow.animeId}`}
                       show={relatedShow}
                       showTitle
                       showRating
@@ -643,6 +711,55 @@ function DetailsPage() {
                   </p>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'download' && (
+            <div className="py-4">
+              {show.downloadUrl &&
+                show.downloadUrl &&
+                show.downloadUrl.map((downloadUrl, qIndex) => (
+                  <div key={downloadUrl.title || qIndex}>
+                    <h3 className="text-lg font-semibold mb-3">
+                      {downloadUrl.title}
+                    </h3>
+                    {downloadUrl.qualities &&
+                    downloadUrl.qualities.length > 0 ? (
+                      downloadUrl.qualities.map((quality, uIndex) => (
+                        <div className="space-y-3">
+                          <div className="bg-gray-900 p-3 rounded-md mb-3">
+                            <h4 className="font-medium mb-2">
+                              {quality.title}
+                            </h4>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                              {quality.urls && quality.urls.length > 0 ? (
+                                quality.urls.map((urlItem, uIndex) => (
+                                  <a
+                                    key={uIndex}
+                                    href={urlItem.url || '#'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-gray-800 hover:bg-gray-700 text-center py-2 rounded-md text-sm transition-colors"
+                                  >
+                                    {urlItem.title}
+                                  </a>
+                                ))
+                              ) : (
+                                <div className="text-gray-500 col-span-2">
+                                  Tidak ada link tersedia
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-gray-500 col-span-2">
+                        Tidak ada link tersedia
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           )}
         </div>

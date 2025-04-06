@@ -375,50 +375,149 @@ export async function fetchMovieAnime() {
   }
 }
 
+// export async function fetchDetailAnime(id) {
+//   try {
+//     const response = await fetch(`http://localhost:3001/otakudesu/anime/${id}`);
+//     const result = await response.json();
+
+//     const animeData = result.data;
+//     console.log('resul dari Detail lib', animeData);
+
+//     if (result.ok && result.data.episodeList) {
+//       const episodes = result.data.episodeList;
+//       const moreThanTwenty = episodes.length > 25; // Menentukan apakah lebih dari 50 episode
+
+//       if (episodes.length > 25) {
+//         // Jika lebih dari 25, hanya ambil satu episode dari setiap kelompok 25 episode
+//         const selectedEpisodes = [];
+//         const groupSize = 25;
+
+//         for (let i = 0; i < episodes.length; i += groupSize) {
+//           selectedEpisodes.push(episodes[i]); // Ambil episode pertama dari setiap kelompok
+//         }
+
+//         return { episodes: selectedEpisodes, animeData, moreThanTwenty };
+//       } else {
+//         // Jika 25 atau kurang, ambil recommendedEpisodeList dari API kedua
+//         const episodeId = episodes[0].episodeId; // Ambil episodeId dari episode pertama
+//         const episodeResponse = await fetch(
+//           `http://localhost:3001/otakudesu/episode/${episodeId}`
+//         );
+//         const episodeData = await episodeResponse.json();
+//         console.log('episodeData dari lib', episodeData);
+
+//         if (episodeData.ok && episodeData.data.info.episodeList) {
+//           const groupedEpisodes = episodeData.data.info.episodeList;
+//           return { episodes: groupedEpisodes, animeData, moreThanTwenty };
+//         }
+
+//         return { episodes: [], animeData, moreThanTwenty };
+//       }
+//     }
+
+//     return { episodes: [], animeData: null, moreThanTwenty: false };
+//   } catch (error) {
+//     console.error('Error fetching anime details:', error);
+//     return { episodes: [], animeData: null, moreThanTwenty: false };
+//   }
+// }
+
 export async function fetchDetailAnime(id) {
   try {
+    // First API call to get the main episode data
     const response = await fetch(`http://localhost:3001/otakudesu/anime/${id}`);
     const result = await response.json();
+    // console.log('result dari lib', result);
+
+    // Check if we have valid result
+    if (!result.ok || !result.data) {
+      return {
+        animeData: null,
+        episodesInfo: [],
+        batchDetails: null,
+      };
+    }
 
     const animeData = result.data;
-    console.log('resul dari Detail lib', animeData);
+    // console.log('animeData dari lib', animeData);
 
-    if (result.ok && result.data.episodeList) {
-      const episodes = result.data.episodeList;
-      const moreThanTwenty = episodes.length > 25; // Menentukan apakah lebih dari 50 episode
+    // Get the episode list from the first API call
+    const episodeList = animeData.episodeList || [];
+    // console.log('episodeList dari lib', episodeList);
 
-      if (episodes.length > 25) {
-        // Jika lebih dari 25, hanya ambil satu episode dari setiap kelompok 25 episode
-        const selectedEpisodes = [];
-        const groupSize = 25;
+    const batchId = animeData.batch.batchId;
+    console.log('batchId dari lib', batchId);
 
-        for (let i = 0; i < episodes.length; i += groupSize) {
-          selectedEpisodes.push(episodes[i]); // Ambil episode pertama dari setiap kelompok
-        }
-
-        return { episodes: selectedEpisodes, animeData, moreThanTwenty };
-      } else {
-        // Jika 25 atau kurang, ambil recommendedEpisodeList dari API kedua
-        const episodeId = episodes[0].episodeId; // Ambil episodeId dari episode pertama
-        const episodeResponse = await fetch(
-          `http://localhost:3001/otakudesu/episode/${episodeId}`
+    // Fetch anime details using batchId
+    let batchDetails = null;
+    if (batchId) {
+      try {
+        const animeResponse = await fetch(
+          `http://localhost:3001/otakudesu/batch/${batchId}`
         );
-        const episodeData = await episodeResponse.json();
-        console.log('episodeData dari lib', episodeData);
+        const batchData = await animeResponse.json();
 
-        if (episodeData.ok && episodeData.data.info.episodeList) {
-          const groupedEpisodes = episodeData.data.info.episodeList;
-          return { episodes: groupedEpisodes, animeData, moreThanTwenty };
+        if (batchData.ok && batchData.data) {
+          // Extract only synopsis paragraphs and poster
+          batchDetails = {
+            downloadUrl: batchData.data?.downloadUrl?.formats || [],
+          };
         }
-
-        return { episodes: [], animeData, moreThanTwenty };
+      } catch (error) {
+        console.error('Error fetching anime details:', error);
       }
     }
 
-    return { episodes: [], animeData: null, moreThanTwenty: false };
+    // Loop through each episode to fetch detailed information
+    const episodes = await Promise.all(
+      episodeList.map(async (episode) => {
+        try {
+          const episodeResponse = await fetch(
+            `http://localhost:3001/otakudesu/episode/${episode.episodeId}`
+          );
+
+          if (!episodeResponse.ok) {
+            throw new Error(`Failed to fetch data for ${episode.episodeId}`);
+          }
+
+          const episodeData = await episodeResponse.json();
+
+          // Extract only the title and genreList
+          const result = {
+            episodeId: episode.episodeId,
+            title: episodeData.data?.title || 'Unknown',
+            releaseTime: episodeData.data?.releaseTime || 'Unknown',
+            duration: episodeData.data?.info?.duration || 'Unknown',
+            genreList: episodeData.data?.info?.genreList || [],
+          };
+          // console.log('result dari lib', result);
+
+          return result;
+        } catch (error) {
+          console.error(
+            `Error fetching data for episode ${episode.episodeId}:`,
+            error
+          );
+          return null;
+        }
+      })
+    );
+
+    // console.log('animeData dari lib', animeData);
+    // console.log('episodes dari lib', episodes);
+    // console.log('batchDetails dari lib', batchDetails);
+
+    return {
+      animeData: animeData,
+      episodes: episodes.filter(Boolean),
+      batchDetails: batchDetails,
+    };
   } catch (error) {
-    console.error('Error fetching anime details:', error);
-    return { episodes: [], animeData: null, moreThanTwenty: false };
+    console.error('Error fetching anime episode:', error);
+    return {
+      originalData: null,
+      episodes: [],
+    };
   }
 }
 
@@ -574,7 +673,7 @@ export async function fetchEpisodeAnime(episodeId) {
 
     // console.log('originalData dari lib', originalData);
     // console.log('episodesInfo dari lib', episodesInfo);
-    console.log('animeDetails dari lib', animeDetails);
+    // console.log('animeDetails dari lib', animeDetails);
 
     return {
       originalData: originalData,
