@@ -504,10 +504,35 @@ export async function fetchEpisodeAnime(episodeId) {
       return {
         originalData: null,
         episodesInfo: [],
+        animeDetails: null,
       };
     }
 
     const originalData = data.data;
+
+    // Get animeId from originalData to fetch anime details
+    const animeId = originalData.animeId;
+
+    // Fetch anime details using animeId
+    let animeDetails = null;
+    if (animeId) {
+      try {
+        const animeResponse = await fetch(
+          `http://localhost:3001/otakudesu/anime/${animeId}`
+        );
+        const animeData = await animeResponse.json();
+
+        if (animeData.ok && animeData.data) {
+          // Extract only synopsis paragraphs and poster
+          animeDetails = {
+            synopsis: animeData.data.synopsis?.paragraphs || [],
+            poster: animeData.data.poster || null,
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching anime details:', error);
+      }
+    }
 
     // Get the episode list from the first API call
     const episodeList = originalData.info?.episodeList || [];
@@ -549,16 +574,19 @@ export async function fetchEpisodeAnime(episodeId) {
 
     // console.log('originalData dari lib', originalData);
     // console.log('episodesInfo dari lib', episodesInfo);
+    console.log('animeDetails dari lib', animeDetails);
 
     return {
       originalData: originalData,
       episodesInfo: episodesInfo.filter(Boolean),
+      animeDetails: animeDetails,
     };
   } catch (error) {
     console.error('Error fetching anime episode:', error);
     return {
       originalData: null,
       episodesInfo: [],
+      animeDetails: null,
     };
   }
 }

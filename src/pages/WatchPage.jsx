@@ -36,6 +36,8 @@ function WatchPage() {
     setIsExpanded(!isExpanded);
   };
 
+  const episodeId = getEpisodeIdFromUrl();
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -46,9 +48,8 @@ function WatchPage() {
           throw new Error('No episode ID found');
         }
 
-        const { originalData, episodesInfo } = await fetchEpisodeAnime(
-          episodeId
-        );
+        const { originalData, episodesInfo, animeDetails } =
+          await fetchEpisodeAnime(episodeId);
 
         if (!originalData) {
           throw new Error('Failed to fetch episode data');
@@ -59,7 +60,8 @@ function WatchPage() {
           title: originalData.title || 'Unknown Title',
           animeId: originalData.animeId || '',
           releaseTime: originalData.releaseTime || '',
-          description: 'No description available',
+          description:
+            animeDetails?.synopsis?.join('\n\n') || 'No description available',
           info: originalData.info || {},
           watchServer: processServerData(originalData.server),
           downloadUrl: originalData.downloadUrl || {},
@@ -72,7 +74,8 @@ function WatchPage() {
           title: episode.title || `Episode ${index + 1}`,
           duration: episode.duration || '24 min',
           releaseDate: episode.releaseTime || 'Unknown',
-          thumbnailUrl: `/placeholder.svg?height=180&width=320`,
+          thumbnailUrl:
+            animeDetails?.poster || '/placeholder.svg?height=300&width=200',
           episodeId: episode.episodeId,
         }));
 
@@ -122,7 +125,7 @@ function WatchPage() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, episodeId]);
 
   // Helper function to process server data
   const processServerData = (serverData) => {
@@ -298,7 +301,10 @@ function WatchPage() {
                     ?.serverList.map((server, idx) => (
                       <button
                         key={server.serverId || idx}
-                        onClick={() => handleServerChange(server)}
+                        onClick={() => {
+                          console.log(`Selected Server ID: ${server.serverId}`);
+                          handleServerChange(server);
+                        }}
                         className={`px-3 py-1 text-sm rounded ${
                           selectedServer &&
                           selectedServer.serverId === server.serverId
@@ -337,7 +343,7 @@ function WatchPage() {
                   <h2 className="text-lg font-bold">Synopsis</h2>
                   <p
                     className={`text-sm text-gray-400 mt-1 ${
-                      isExpanded ? '' : 'line-clamp-5'
+                      isExpanded ? '' : 'line-clamp-2'
                     }`}
                   >
                     {show.description ||
@@ -451,30 +457,38 @@ function WatchPage() {
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Download</h3>
                     <div className="space-y-3">
-                      <div className="bg-gray-900 p-3 rounded-md">
-                        <h4 className="font-medium mb-2">
-                          Download {currentEpisode?.title || show.title}
-                        </h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                          {show.downloadUrl &&
-                            show.downloadUrl.qualities &&
-                            show.downloadUrl.qualities.map((quality) => (
-                              <a
-                                key={quality.title}
-                                href={
-                                  quality.urls && quality.urls.length > 0
-                                    ? quality.urls[0]
-                                    : '#'
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-gray-800 hover:bg-gray-700 text-center py-2 rounded-md text-sm transition-colors"
-                              >
-                                {quality.title} ({quality.size})
-                              </a>
-                            ))}
-                        </div>
-                      </div>
+                      {show.downloadUrl &&
+                        show.downloadUrl.qualities &&
+                        show.downloadUrl.qualities.map((quality, qIndex) => (
+                          <div
+                            key={quality.title || qIndex}
+                            className="bg-gray-900 p-3 rounded-md mb-3"
+                          >
+                            <h4 className="font-medium mb-2">
+                              {quality.title}{' '}
+                              {quality.size && `(${quality.size})`}
+                            </h4>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                              {quality.urls && quality.urls.length > 0 ? (
+                                quality.urls.map((urlItem, uIndex) => (
+                                  <a
+                                    key={uIndex}
+                                    href={urlItem.url || '#'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-gray-800 hover:bg-gray-700 text-center py-2 rounded-md text-sm transition-colors"
+                                  >
+                                    {urlItem.title || `Link ${uIndex + 1}`}
+                                  </a>
+                                ))
+                              ) : (
+                                <div className="text-gray-500 col-span-2">
+                                  Tidak ada link tersedia
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -498,11 +512,6 @@ function WatchPage() {
                     ? 'bg-gray-800'
                     : ''
                 }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentEpisode(episode);
-                  navigate(`/watch/${show.animeId}?ep=${episode.episodeId}`);
-                }}
               >
                 <div className="relative w-24 aspect-video flex-shrink-0">
                   <img
