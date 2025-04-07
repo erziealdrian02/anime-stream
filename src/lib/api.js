@@ -203,6 +203,7 @@ export async function fetchOngoingAnime() {
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
             aired: animeDetails?.aired ?? '',
+            synopsis: animeDetails?.synopsis.paragraphs ?? '',
             genres: Array.isArray(animeDetails?.genreList)
               ? animeDetails.genreList.map((genre) => ({
                   title: genre.title || 'Unknown',
