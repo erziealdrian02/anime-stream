@@ -1,7 +1,7 @@
 'use client';
 
 // AnimeListSkeleton.jsx
-export default function OngoingSkeletonLoader() {
+export default function OngoingPageSkeletonLoader() {
   return (
     <div className="min-h-screen bg-black pt-16">
       <div className="bg-black/90 border-b border-gray-800">

@@ -236,23 +236,6 @@ function CompletePage() {
 
   return (
     <div className="min-h-screen bg-black pt-16">
-      {/* Secondary Navigation */}
-      <div className="bg-black/90 border-b border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-6 text-sm overflow-x-auto py-3">
-            <Link to="/" className="text-white whitespace-nowrap">
-              Untukmu
-            </Link>
-            <Link
-              to="/semua-konten"
-              className="text-gray-400 hover:text-white whitespace-nowrap"
-            >
-              Semua konten
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Featured Carousel */}
       <div className="relative">
         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
@@ -403,11 +386,11 @@ function CompletePage() {
         {/* Show All Section */}
         <div className="mb-10">
           <h2 className="block md:hidden mb-4 text-center text-xl font-bold">
-            Semua Anime Ongoing
+            Semua Anime Completed
           </h2>
           <div className="flex items-center justify-between mb-4">
             <h2 className="hidden md:block text-xl font-bold">
-              Semua Anime Ongoing
+              Semua Anime Completed
             </h2>
 
             <div className="flex space-x-2 overflow-x-auto pb-2">

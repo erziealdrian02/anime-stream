@@ -26,7 +26,7 @@ function App() {
           <Route path="/details/:id" element={<DetailsPage />} />
           <Route path="/details/movie/:id" element={<DetailsMoviePage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/category/:genreId" element={<CategoryPage />} />
           <Route path="/ongoing" element={<OngoingPage />} />
           <Route path="/complete" element={<CompletePage />} />
 
