@@ -11,6 +11,7 @@ import CategoryPage from './pages/CategoryPage';
 import AnimeListPage from './pages/AnimeListPage';
 import SchedulePage from './pages/SchedulePage';
 import NewsPage from './pages/NewsPage';
+import OngoingPage from './pages/OngoingPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/details/movie/:id" element={<DetailsMoviePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/Ongoing" element={<OngoingPage />} />
 
           <Route path="/anime-list" element={<AnimeListPage />} />
           <Route path="/schedule" element={<SchedulePage />} />

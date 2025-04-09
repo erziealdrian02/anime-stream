@@ -162,20 +162,23 @@ function Navbar() {
 
   // Navigation links data
   const navLinks = [
-    { path: '/', label: 'Untukmu', highlight: location.pathname === '/' },
-    { path: '/free', label: 'FREE', highlight: false },
-    { path: '/vote', label: 'CA S2 VOTE', highlight: false, icon: '❤️' },
-    { path: '/serial', label: 'Serial', highlight: false },
-    { path: '/variety', label: 'Variety Show', highlight: false },
-    { path: '/film', label: 'Film', highlight: false },
+    { path: '/', label: 'Beranda', highlight: location.pathname === '/' },
     {
-      path: '/anime',
-      label: 'Anime',
-      highlight: location.pathname.includes('/anime'),
-      orangeHighlight: true,
+      path: '/anime-list',
+      label: 'Semua Anime List',
+      highlight: location.pathname === '/anime-list',
     },
-    { path: '/anak', label: 'Anak', highlight: false },
-    { path: '/semua', label: 'Semua', highlight: false },
+    {
+      path: '/schedule',
+      label: 'Jadwal Anime',
+      highlight: location.pathname === '/schedule',
+    },
+    {
+      path: '/news',
+      label: 'Berita Anime',
+      highlight: location.pathname === '/news',
+      icon: '❤️',
+    },
   ];
 
   return (

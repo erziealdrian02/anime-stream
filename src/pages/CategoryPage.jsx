@@ -2,50 +2,58 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getCategoryShows, getFeaturedShows } from '../lib/api';
+import { fetchOngoingAnime } from '../lib/api';
 
 function CategoryPage() {
-  const { slug } = useParams();
   const [shows, setShows] = useState([]);
-  const [featuredShows, setFeaturedShows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('all');
-
-  // Convert slug to readable name
-  const categoryName = slug
-    ? slug
-        .split('-')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    : '';
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchShows = async () => {
       try {
-        // In a real app, these would be actual API calls
-        const showsData = await getCategoryShows(slug);
-        const featured = await getFeaturedShows();
-        setShows(showsData);
-        setFeaturedShows(featured.slice(0, 4));
+        setLoading(true);
+        const data = await fetchOngoingAnime();
+
+        if (!Array.isArray(data)) {
+          console.error('Data animeList tidak valid:', data);
+          return;
+        }
+
+        const formattedData = data.map((anime) => ({
+          id: anime.animeId,
+          title: anime.title,
+          posterUrl: anime.poster,
+          href: anime.href,
+          score: anime.score, // Sekarang pasti ada
+          status: anime.status, // Sekarang pasti ada
+          isNew: false,
+          isVip: false,
+          genres: anime.genres, // Sekarang pasti ada
+        }));
+
+        setShows(formattedData);
       } catch (error) {
-        console.error('Error fetching category shows:', error);
+        console.error('Error fetching ongoing anime:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [slug]);
+    fetchShows();
+  }, []);
 
-  const filteredShows =
-    activeFilter === 'all'
-      ? shows
-      : shows.filter((show) => {
-          if (activeFilter === 'newest') return show.releaseYear >= 2023;
-          if (activeFilter === 'popular') return show.popularity > 8;
-          return true;
-        });
+  // if (loading) {
+  //   return <OngoingSkeletonLoader />;
+  // }
+
+  // const filteredShows =
+  //   activeFilter === 'all'
+  //     ? shows
+  //     : shows.filter((show) => {
+  //         if (activeFilter === 'newest') return show.releaseYear >= 2023;
+  //         if (activeFilter === 'popular') return show.popularity > 8;
+  //         return true;
+  //       });
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -69,7 +77,7 @@ function CategoryPage() {
       {/* Featured Carousel */}
       <div className="relative">
         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-          {featuredShows.map((show, index) => (
+          {shows.map((show, index) => (
             <div key={show.id} className="flex-shrink-0 w-full snap-center">
               <div className="relative h-[50vh]">
                 <img
@@ -131,7 +139,7 @@ function CategoryPage() {
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {featuredShows.map((_, index) => (
+          {shows.map((_, index) => (
             <div
               key={index}
               className={`h-1.5 rounded-full ${
@@ -150,7 +158,7 @@ function CategoryPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-3">
-            {filteredShows.slice(0, 10).map((show, index) => (
+            {/* {filteredShows.slice(0, 10).map((show, index) => (
               <Link key={show.id} to={`/details/${show.id}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <img
@@ -184,7 +192,7 @@ function CategoryPage() {
                   </p>
                 </div>
               </Link>
-            ))}
+            ))} */}
           </div>
         </div>
 
@@ -195,7 +203,7 @@ function CategoryPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-3">
-            {filteredShows.slice(5, 15).map((show) => (
+            {/* {filteredShows.slice(5, 15).map((show) => (
               <Link key={show.id} to={`/details/${show.id}`} className="group">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-md">
                   <img
@@ -229,7 +237,7 @@ function CategoryPage() {
                   </p>
                 </div>
               </Link>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

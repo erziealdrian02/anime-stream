@@ -1166,6 +1166,255 @@ export async function fetchServerData(serverId) {
   }
 }
 
+export async function fetchAllOngoingAnime() {
+  try {
+    // Ambil halaman pertama untuk mendapatkan informasi total pages
+    const firstResponse = await fetch(
+      'http://localhost:3001/otakudesu/ongoing'
+    );
+    const firstData = await firstResponse.json();
+
+    if (
+      !firstResponse.ok ||
+      !firstData?.data?.animeList ||
+      !Array.isArray(firstData.data.animeList)
+    ) {
+      return [];
+    }
+
+    // Mendapatkan total halaman dari pagination
+    const totalPages = firstData.pagination.totalPages || 1;
+    let allAnimeList = [...firstData.data.animeList];
+
+    // Ambil semua halaman lainnya (2 sampai totalPages)
+    const pagePromises = [];
+    for (let page = 2; page <= totalPages; page++) {
+      pagePromises.push(
+        fetch(`http://localhost:3001/otakudesu/ongoing?page=${page}`)
+          .then((res) => res.json())
+          .then((data) => data?.data?.animeList || [])
+      );
+    }
+
+    // Tunggu semua request pagination selesai
+    const pagesData = await Promise.all(pagePromises);
+
+    // Gabungkan semua data anime dari semua halaman
+    pagesData.forEach((pageAnimeList) => {
+      if (Array.isArray(pageAnimeList)) {
+        allAnimeList = [...allAnimeList, ...pageAnimeList];
+      }
+    });
+
+    // Proses untuk mendapatkan detail dari setiap anime
+    const detailedAnimeList = await Promise.all(
+      allAnimeList.map(async (anime) => {
+        try {
+          const detailsResponse = await fetch(
+            `http://localhost:3001/otakudesu/anime/${anime.animeId}`
+          );
+
+          if (!detailsResponse.ok) {
+            throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+          }
+
+          const details = await detailsResponse.json();
+          // Akses data melalui properti 'data' terlebih dahulu
+          const animeDetails = details.data;
+
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            episodes: anime.episodes,
+            releaseDay: anime.releaseDay,
+            latestReleaseDate: anime.latestReleaseDate,
+            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            status: animeDetails?.status ?? 'Ongoing',
+            japanese: animeDetails?.japanese ?? '',
+            duration: animeDetails?.duration ?? '',
+            aired: animeDetails?.aired ?? '',
+            synopsis: animeDetails?.synopsis?.paragraphs ?? '',
+            genres: Array.isArray(animeDetails?.genreList)
+              ? animeDetails.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
+              : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${anime.animeId}:`, error);
+          // Return basic anime info tanpa detail jika gagal fetch detail
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            episodes: anime.episodes,
+            releaseDay: anime.releaseDay,
+            latestReleaseDate: anime.latestReleaseDate,
+            score: 'N/A',
+            status: 'Ongoing',
+            genres: [],
+          };
+        }
+      })
+    );
+
+    return detailedAnimeList.filter(Boolean);
+  } catch (error) {
+    console.error('Error fetching all ongoing anime:', error);
+    return [];
+  }
+}
+
+export async function fetchAllAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/otakudesu/anime');
+    const data = await response.json();
+    console.log('Result dari lib:', data);
+
+    if (
+      !response.ok ||
+      !data?.data?.list?.animeList ||
+      !Array.isArray(data.data.list.animeList)
+    ) {
+      return [];
+    }
+
+    const animeList = data.data.list.animeList;
+    console.log('animeList dari lib:', animeList);
+
+    const detailedAnimeList = await Promise.all(
+      animeList.map(async (anime) => {
+        try {
+          const detailsResponse = await fetch(
+            `http://localhost:3001/otakudesu/anime/${anime.animeId}`
+          );
+
+          if (!detailsResponse.ok) {
+            throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+          }
+
+          const details = await detailsResponse.json();
+          console.log('Details dari lib:', details);
+
+          // Akses data melalui properti 'data' terlebih dahulu
+          const animeDetails = details.data;
+
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            status: animeDetails?.status ?? 'Unknown',
+            japanese: animeDetails?.japanese ?? '',
+            duration: animeDetails?.duration ?? '',
+            aired: animeDetails?.aired ?? '',
+            synopsis: animeDetails?.synopsis.paragraphs ?? '',
+            genres: Array.isArray(animeDetails?.genreList)
+              ? animeDetails.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
+              : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${anime.animeId}:`, error);
+          return null;
+        }
+      })
+    );
+
+    return detailedAnimeList.filter(Boolean);
+  } catch (error) {
+    console.error('Error fetching ongoing anime:', error);
+    return [];
+  }
+}
+
+export async function fetchScheduleAnime() {
+  try {
+    const response = await fetch('http://localhost:3001/otakudesu/schedule');
+    const data = await response.json();
+    console.log('Result dari lib:', data);
+
+    if (!response.ok || !data?.data?.days || !Array.isArray(data.data.days)) {
+      return [];
+    }
+
+    const scheduleAnime = data.data.days;
+    console.log('scheduleAnime dari lib:', scheduleAnime);
+
+    // Create an array to hold all anime with details across all days
+    const allDetailedAnime = [];
+
+    // Process each day
+    for (const day of scheduleAnime) {
+      // Process each anime in the day's animeList
+      const detailedAnimeForDay = await Promise.all(
+        day.animeList.map(async (anime) => {
+          try {
+            const detailsResponse = await fetch(
+              `http://localhost:3001/otakudesu/anime/${anime.animeId}`
+            );
+
+            if (!detailsResponse.ok) {
+              throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+            }
+
+            const details = await detailsResponse.json();
+            const animeDetails = details.data;
+            console.log('animeDetails dari lib:', animeDetails);
+
+            return {
+              animeId: anime.animeId,
+              title: anime.title,
+              href: anime.href,
+              day: day.day, // Add the day information
+              poster: animeDetails?.poster || '',
+              score:
+                animeDetails?.score && animeDetails.score !== ''
+                  ? animeDetails.score.toString()
+                  : 'N/A',
+              status: animeDetails?.status || 'Unknown',
+              japanese: animeDetails?.japanese || '',
+              duration: animeDetails?.duration || '',
+              aired: animeDetails?.aired || '',
+              synopsis: animeDetails?.synopsis?.paragraphs || [],
+              genres: Array.isArray(animeDetails?.genreList)
+                ? animeDetails.genreList.map((genre) => ({
+                    title: genre.title || 'Unknown',
+                    genreId: genre.genreId || '',
+                  }))
+                : [],
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching details for ${anime.animeId}:`,
+              error
+            );
+            return null;
+          }
+        })
+      );
+
+      // Add the detailed anime for this day to the overall list
+      allDetailedAnime.push({
+        day: day.day,
+        animeList: detailedAnimeForDay.filter(Boolean),
+      });
+    }
+
+    return allDetailedAnime;
+  } catch (error) {
+    console.error('Error fetching schedule anime:', error);
+    return [];
+  }
+}
+
 // API functions
 export async function getFeaturedShow() {
   // Simulate API delay
