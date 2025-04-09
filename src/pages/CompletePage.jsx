@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchAllOngoingAnime } from '../lib/api';
+import { fetchAllCompleteAnime, fetchMoreCompleteAnime } from '../lib/api';
 import ShowBigCard from '../components/ShowBigCard';
-import OngoingPageSkeletonLoader from '../components/loader/OngoingPageSkeletonLoader';
+import CompletePageSkeletonLoader from '../components/loader/CompletePageSkeletonLoader';
 
 // Add the fetchGenresWithPosters function to lib/api.js
 export async function fetchGenres() {
   try {
     // First get all anime data
-    const animeList = await fetchAllOngoingAnime();
+    const { animeList } = await fetchAllCompleteAnime();
 
     // Extract all unique genres
     const genresMap = new Map();
@@ -44,13 +44,18 @@ export async function fetchGenres() {
   }
 }
 
-function OngoingPage() {
+function CompletePage() {
   const [shows, setShows] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
   const [activeFilter, setActiveFilter] = useState('all');
   const [loadingMore, setLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+  });
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,16 +63,16 @@ function OngoingPage() {
         setLoading(true);
         // Fetch both anime and genres simultaneously
         const [animeData, genresData] = await Promise.all([
-          fetchAllOngoingAnime(),
+          fetchAllCompleteAnime(3), // Only load first 3 pages initially
           fetchGenres(),
         ]);
 
-        if (!Array.isArray(animeData)) {
+        if (!animeData || !Array.isArray(animeData.animeList)) {
           console.error('Data animeList tidak valid:', animeData);
           return;
         }
 
-        const formattedData = animeData.map((anime) => ({
+        const formattedData = animeData.animeList.map((anime) => ({
           id: anime.animeId,
           title: anime.title,
           posterUrl: anime.poster,
@@ -96,6 +101,14 @@ function OngoingPage() {
 
         setShows(formattedData);
         setGenres(genresData);
+
+        // Set pagination info
+        setPagination({
+          currentPage: animeData.currentPage,
+          totalPages: animeData.totalPages,
+        });
+
+        setHasMore(animeData.currentPage < animeData.totalPages);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -105,6 +118,70 @@ function OngoingPage() {
 
     fetchData();
   }, []);
+
+  const loadMoreAnime = async () => {
+    if (loadingMore || pagination.currentPage >= pagination.totalPages) return;
+
+    try {
+      setLoadingMore(true);
+
+      // Calculate next page range (load 2 more pages at a time)
+      const startPage = pagination.currentPage + 1;
+      const endPage = Math.min(
+        pagination.currentPage + 2,
+        pagination.totalPages
+      );
+
+      // Fetch more anime from next pages
+      const moreAnime = await fetchMoreCompleteAnime(startPage, endPage);
+
+      if (Array.isArray(moreAnime) && moreAnime.length > 0) {
+        // Format the new anime data
+        const formattedMoreData = moreAnime.map((anime) => ({
+          id: anime.animeId,
+          title: anime.title,
+          posterUrl: anime.poster,
+          backdropUrl: anime.poster,
+          href: anime.href,
+          episodes: anime.episodes,
+          releaseDay: anime.releaseDay,
+          latestReleaseDate: anime.latestReleaseDate,
+          score: anime.score || 'N/A',
+          status: anime.status || 'Ongoing',
+          description: Array.isArray(anime.synopsis)
+            ? anime.synopsis.join(' ')
+            : typeof anime.synopsis === 'string'
+            ? anime.synopsis
+            : 'No description available',
+          releaseYear: anime.aired ? parseInt(anime.aired.split(' ')[2]) : 2023,
+          popularity: parseFloat(anime.score) || 0,
+          type: 'anime',
+          genres: anime.genres || [],
+          isNew:
+            anime.latestReleaseDate &&
+            new Date(anime.latestReleaseDate) >=
+              new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          isVip: Math.random() > 0.8,
+        }));
+
+        // Add the new anime to the existing ones
+        setShows((prevShows) => [...prevShows, ...formattedMoreData]);
+
+        // Update pagination info
+        setPagination((prev) => ({
+          ...prev,
+          currentPage: endPage,
+        }));
+
+        // Check if there are more pages to load
+        setHasMore(endPage < pagination.totalPages);
+      }
+    } catch (error) {
+      console.error('Error loading more anime:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handlePrevSlide = () => {
     setActiveCarouselIndex((prev) =>
@@ -119,7 +196,7 @@ function OngoingPage() {
   };
 
   if (loading) {
-    return <OngoingPageSkeletonLoader />;
+    return <CompletePageSkeletonLoader />;
   }
 
   const filteredShows =
@@ -145,7 +222,7 @@ function OngoingPage() {
 
   // Pilih top anime untuk carousel
   const featuredAnime = shows
-    .filter((show) => parseFloat(show.score) > 7)
+    .filter((show) => parseFloat(show.score) > 8)
     .slice(0, 10);
   const carouselShows =
     featuredAnime.length > 0
@@ -384,7 +461,7 @@ function OngoingPage() {
           </div>
 
           {/* No Results Message */}
-          {sortedShows.length === 0 && (
+          {sortedShows.length === 0 && !loading && (
             <div className="text-center py-10">
               <p className="text-gray-400">
                 No anime found for the selected filter: "
@@ -398,10 +475,71 @@ function OngoingPage() {
               </p>
             </div>
           )}
+
+          {/* Load More Button */}
+          {hasMore && activeFilter === 'all' && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={loadMoreAnime}
+                disabled={loadingMore}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full flex items-center space-x-2"
+              >
+                {loadingMore ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <span>Memuat...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Muat lebih banyak</span>
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Pagination Info */}
+          <div className="text-center text-gray-500 text-sm mt-4">
+            Menampilkan {sortedShows.length} dari {pagination.totalPages * 24}{' '}
+            anime
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default OngoingPage;
+export default CompletePage;

@@ -48,7 +48,7 @@ function CompleteSection() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Complete</h2>
           <Link
-            to="/category/real-events"
+            to="/complete"
             className="text-sm text-gray-400 hover:text-white"
           >
             Lihat Semua &gt;
