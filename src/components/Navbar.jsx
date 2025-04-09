@@ -11,8 +11,10 @@ function Navbar() {
   const [animes, setAnimes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchContainerRef = useRef(null);
   const inputRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -37,7 +39,6 @@ function Navbar() {
       }
 
       const rawData = await response.json();
-      console.log('API Response:', rawData);
 
       // Extract the data array from the response structure
       let resultsArray = [];
@@ -85,8 +86,6 @@ function Navbar() {
           }
         }
       }
-
-      console.log('Processed array:', resultsArray);
 
       if (!Array.isArray(resultsArray)) {
         console.error('Could not find array in response');
@@ -138,6 +137,14 @@ function Navbar() {
       ) {
         setIsSearchExpanded(false);
       }
+
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        !event.target.classList.contains('mobile-menu-toggle')
+      ) {
+        setMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -153,6 +160,24 @@ function Navbar() {
     }
   }, [isSearchExpanded]);
 
+  // Navigation links data
+  const navLinks = [
+    { path: '/', label: 'Untukmu', highlight: location.pathname === '/' },
+    { path: '/free', label: 'FREE', highlight: false },
+    { path: '/vote', label: 'CA S2 VOTE', highlight: false, icon: '❤️' },
+    { path: '/serial', label: 'Serial', highlight: false },
+    { path: '/variety', label: 'Variety Show', highlight: false },
+    { path: '/film', label: 'Film', highlight: false },
+    {
+      path: '/anime',
+      label: 'Anime',
+      highlight: location.pathname.includes('/anime'),
+      orangeHighlight: true,
+    },
+    { path: '/anak', label: 'Anak', highlight: false },
+    { path: '/semua', label: 'Semua', highlight: false },
+  ];
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -161,7 +186,7 @@ function Navbar() {
     >
       <div className="container mx-auto px-4 h-16 flex items-center">
         {/* Logo */}
-        <Link to="/" className="flex items-center mr-6">
+        <Link to="/" className="flex items-center mr-6 z-20">
           <div className="flex items-center">
             <svg
               className="h-8 w-8 text-blue-500"
@@ -195,65 +220,274 @@ function Navbar() {
           </div>
         </Link>
 
-        {/* Main navigation */}
-        <nav className="flex items-center space-x-6 text-sm">
-          {/* <Link
-            to="/"
-            className={`font-medium ${
-              location.pathname === '/'
-                ? 'text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Untukmu
-          </Link>
-          <Link to="/free" className="text-gray-400 hover:text-white">
-            FREE
-          </Link>
-          <Link
-            to="/vote"
-            className="text-gray-400 hover:text-white flex items-center"
-          >
-            <span className="text-red-500 mr-1">❤️</span>CA S2 VOTE
-            <span className="text-red-500 ml-1">❤️</span>
-          </Link>
-          <Link to="/serial" className="text-gray-400 hover:text-white">
-            Serial
-          </Link>
-          <Link to="/variety" className="text-gray-400 hover:text-white">
-            Variety Show
-          </Link>
-          <Link to="/film" className="text-gray-400 hover:text-white">
-            Film
-          </Link>
-          <Link
-            to="/anime"
-            className={`font-medium ${
-              location.pathname.includes('/anime')
-                ? 'text-orange-500'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Anime
-          </Link>
-          <Link to="/anak" className="text-gray-400 hover:text-white">
-            Anak
-          </Link>
-          <Link to="/semua" className="text-gray-400 hover:text-white">
-            Semua
-          </Link> */}
+        {/* Mobile menu toggle button */}
+        <button
+          className="md:hidden flex items-center justify-center text-white mobile-menu-toggle z-20"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="4" y1="8" x2="20" y2="8"></line>
+              <line x1="4" y1="16" x2="20" y2="16"></line>
+            </svg>
+          )}
+        </button>
+
+        {/* Main navigation - Desktop */}
+        <nav className="hidden md:flex items-center space-x-6 text-sm">
+          {navLinks.map((link, index) => (
+            <Link
+              key={index}
+              to={link.path}
+              className={`font-medium transition-colors duration-200 ${
+                link.highlight
+                  ? link.orangeHighlight
+                    ? 'text-orange-500'
+                    : 'text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {link.icon && (
+                <span className="text-red-500 mr-1">{link.icon}</span>
+              )}
+              {link.label}
+              {link.icon && (
+                <span className="text-red-500 ml-1">{link.icon}</span>
+              )}
+            </Link>
+          ))}
         </nav>
 
-        {/* Right side - search and user */}
-        <div className="flex items-center gap-3 ml-auto">
+        {/* Mobile navigation overlay */}
+        <div
+          ref={mobileMenuRef}
+          className={`fixed inset-0 bg-black/95 z-10 md:hidden transition-transform duration-300 ease-in-out ${
+            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="pt-20 pb-20 px-6 h-full overflow-y-auto">
+            {/* Mobile search */}
+            <div className="mt-6">
+              <div className="relative w-full">
+                <div className="p-3 w-full bg-gray-800/70 rounded-full flex items-center">
+                  <div className="flex items-center justify-center fill-white">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                    >
+                      <path d="M18.9,16.776A10.539,10.539,0,1,0,16.776,18.9l5.1,5.1L24,21.88ZM10.5,18A7.5,7.5,0,1,1,18,10.5,7.507,7.507,0,0,1,10.5,18Z"></path>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="outline-none text-[16px] bg-transparent w-full text-white font-normal px-4"
+                    value={text}
+                    onChange={handleChange}
+                    placeholder="Search anime..."
+                  />
+                </div>
+
+                {/* Mobile search results */}
+                {text.length > 2 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-sm rounded-md shadow-lg z-50 border border-gray-800 max-h-[60vh] overflow-hidden">
+                    <div className="sticky top-0 bg-gray-800 px-4 py-2 border-b border-gray-700 flex justify-between items-center">
+                      <span className="text-sm font-medium text-white">
+                        Search Results{' '}
+                        {animes.length > 0 && `(${animes.length})`}
+                      </span>
+                      {loading && (
+                        <div className="flex items-center">
+                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                          <span className="text-xs text-gray-400">
+                            Searching...
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="overflow-y-auto max-h-[50vh]">
+                      {loading ? (
+                        // Skeleton Loader
+                        <div className="p-2">
+                          {[...Array(4)].map((_, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2 p-3 animate-pulse"
+                            >
+                              <div className="w-12 h-16 bg-gray-700 rounded"></div>
+                              <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                                <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                                <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : animes.length > 0 ? (
+                        animes.map((anime, index) => (
+                          <Link
+                            key={index}
+                            to={`/details/${anime.animeId}`}
+                            className="block p-3 text-sm text-white hover:bg-gray-800/70 border-b border-gray-800/50 last:border-b-0 transition-colors duration-150"
+                            onClick={() => {
+                              setAnimes([]);
+                              setMobileMenuOpen(false);
+                            }}
+                          >
+                            <div className="flex gap-3">
+                              <img
+                                src={anime.poster || '/placeholder.svg'}
+                                alt={anime.title}
+                                className="w-12 h-16 object-cover rounded shadow-md flex-shrink-0"
+                                onError={(e) => {
+                                  e.target.src =
+                                    '/placeholder.svg?height=100&width=70';
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-white line-clamp-1">
+                                  {anime.title}
+                                </h4>
+                                <div className="mt-1 flex items-center text-xs text-gray-400">
+                                  <span className="flex items-center">
+                                    <svg
+                                      className="w-3 h-3 text-yellow-400 mr-1"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-.118L2.98 8.72c-.783-.57-.38-1.81.588-.181h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    {anime.rating || '8.7'}
+                                  </span>
+                                  <span className="mx-2">•</span>
+                                  <span>{anime.type || 'TV'}</span>
+                                  <span className="mx-2">•</span>
+                                  <span>{anime.episodes || '12'} eps</span>
+                                </div>
+                                <div className="mt-1">
+                                  <span className="inline-block px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
+                                    {anime.status || 'Ongoing'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))
+                      ) : (
+                        <div className="p-8 text-sm text-gray-400 text-center">
+                          <svg
+                            className="w-12 h-12 mx-auto text-gray-600 mb-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                          </svg>
+                          <p>No results found for "{text}"</p>
+                          <p className="text-xs mt-1">
+                            Try different keywords or check spelling
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile navigation menu */}
+            <nav className="flex flex-col space-y-4 mt-8">
+              {navLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  to={link.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`font-medium py-2 border-b border-gray-800 ${
+                    link.highlight
+                      ? link.orangeHighlight
+                        ? 'text-orange-500'
+                        : 'text-white'
+                      : 'text-gray-300'
+                  }`}
+                >
+                  {link.icon && (
+                    <span className="text-red-500 mr-1">{link.icon}</span>
+                  )}
+                  {link.label}
+                  {link.icon && (
+                    <span className="text-red-500 ml-1">{link.icon}</span>
+                  )}
+                </Link>
+              ))}
+            </nav>
+            {/* Mobile action buttons */}
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 py-2">
+                <svg
+                  className="h-4 w-4 mr-2"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 15.5H7.5C6.10444 15.5 5.40665 15.5 4.83886 15.6722C3.56045 16.06 2.56004 17.0605 2.17224 18.3389C2 18.9067 2 19.6044 2 21M19 21V15M16 18H22M14.5 7.5C14.5 9.98528 12.4853 12 10 12C7.51472 12 5.5 9.98528 5.5 7.5C5.5 5.01472 7.51472 3 10 3C12.4853 3 14.5 5.01472 14.5 7.5Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                APP
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side actions - Desktop */}
+        <div className="hidden md:flex items-center gap-3 ml-auto">
+          {/* Desktop Search */}
           <div className="relative search-container" ref={searchContainerRef}>
             <div
               className={`p-3 overflow-hidden ${
                 isSearchExpanded ? 'w-[270px]' : 'w-[40px]'
-              } h-[40px] bg-gray-800/50 shadow-[2px_2px_20px_rgba(0,0,0,0.08)] rounded-full flex items-center transition-all duration-300`}
+              } h-[40px] bg-gray-800/50 shadow-lg rounded-full flex items-center transition-all duration-300`}
             >
               <div
-                className="flex items-center justify-center fill-white"
+                className="flex items-center justify-center fill-white cursor-pointer"
                 onClick={handleSearchFocus}
               >
                 <svg
@@ -278,7 +512,7 @@ function Navbar() {
 
             {/* Enhanced Search Results Dropdown */}
             {isSearchExpanded && (
-              <div className="absolute top-full left-0 mt-2 w-80 max-h-[80vh] overflow-hidden bg-gray-900/95 backdrop-blur-sm rounded-md shadow-lg z-50 border border-gray-800">
+              <div className="absolute top-full right-0 mt-2 w-80 max-h-[80vh] overflow-hidden bg-gray-900/95 backdrop-blur-sm rounded-md shadow-lg z-50 border border-gray-800">
                 {/* Search Header */}
                 <div className="sticky top-0 bg-gray-800 px-4 py-2 border-b border-gray-700 flex justify-between items-center">
                   <span className="text-sm font-medium text-white">
@@ -297,7 +531,7 @@ function Navbar() {
                 {/* Results Container with Custom Scrollbar */}
                 <div className="overflow-y-auto max-h-[70vh] custom-scrollbar">
                   {loading ? (
-                    // Skeleton Loader - Menampilkan lebih banyak skeleton
+                    // Skeleton Loader
                     <div className="p-2">
                       {[...Array(8)].map((_, index) => (
                         <div
@@ -314,7 +548,6 @@ function Navbar() {
                       ))}
                     </div>
                   ) : animes.length > 0 ? (
-                    // Menampilkan semua hasil tanpa batasan
                     animes.map((anime, index) => (
                       <Link
                         key={index}
@@ -410,7 +643,7 @@ function Navbar() {
             )}
           </div>
 
-          <button className="text-gray-400 hover:text-white">
+          <button className="text-gray-400 hover:text-white transition-colors duration-200">
             <svg
               className="h-6 w-6"
               viewBox="0 0 24 24"
@@ -433,8 +666,7 @@ function Navbar() {
               />
             </svg>
           </button>
-
-          <button className="text-gray-400 hover:text-white">
+          <button className="text-gray-400 hover:text-white transition-colors duration-200">
             <svg
               className="h-6 w-6"
               viewBox="0 0 24 24"
@@ -451,11 +683,8 @@ function Navbar() {
             </svg>
           </button>
 
-          <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
-            U
-          </div>
-
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4">
+          {/* APP button */}
+          <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 hidden sm:flex items-center transition-colors duration-200">
             <svg
               className="h-4 w-4 mr-1"
               viewBox="0 0 24 24"
@@ -472,12 +701,31 @@ function Navbar() {
             </svg>
             APP
           </Button>
+        </div>
 
-          <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full px-4">
-            VIP
-          </Button>
+        {/* Small screen actions (visible on medium screens but not on mobile) */}
+        <div className="md:hidden sm:flex items-center gap-3 ml-auto">
+          <div className="relative search-container">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 bg-gray-800/50 rounded-full flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="white"
+              >
+                <path d="M18.9,16.776A10.539,10.539,0,1,0,16.776,18.9l5.1,5.1L24,21.88ZM10.5,18A7.5,7.5,0,1,1,18,10.5,7.507,7.507,0,0,1,10.5,18Z"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Gradient border bottom effect */}
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-700/50 to-transparent"></div>
     </header>
   );
 }

@@ -8,6 +8,9 @@ import DetailsPage from './pages/DetailsPage';
 import DetailsMoviePage from './pages/DetailsMoviePage';
 import SearchPage from './pages/SearchPage';
 import CategoryPage from './pages/CategoryPage';
+import AnimeListPage from './pages/AnimeListPage';
+import SchedulePage from './pages/SchedulePage';
+import NewsPage from './pages/NewsPage';
 
 function App() {
   return (
@@ -22,6 +25,10 @@ function App() {
           <Route path="/details/movie/:id" element={<DetailsMoviePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
+
+          <Route path="/anime-list" element={<AnimeListPage />} />
+          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/news" element={<NewsPage />} />
         </Routes>
       </main>
       <Footer />

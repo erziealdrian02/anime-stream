@@ -160,6 +160,433 @@ const mockEpisodes = [
   },
 ];
 
+// Mock anime list data
+const mockAnimeList = [
+  {
+    id: 'a1',
+    title: 'Attack on Titan',
+    description:
+      'In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, gigantic humanoid creatures who devour humans seemingly without reason.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2013,
+    genres: ['Action', 'Drama', 'Fantasy'],
+    type: 'anime',
+    isVip: false,
+    isNew: false,
+  },
+  {
+    id: 'a2',
+    title: 'Demon Slayer',
+    description:
+      'A young boy becomes a demon slayer after his family is slaughtered and his sister is turned into a demon.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2019,
+    genres: ['Action', 'Fantasy', 'Historical'],
+    type: 'anime',
+    isVip: true,
+    isNew: false,
+  },
+  {
+    id: 'a3',
+    title: 'Jujutsu Kaisen',
+    description:
+      "A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman school to be able to locate the demon's other body parts and thus exorcise himself.",
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2020,
+    genres: ['Action', 'Supernatural'],
+    type: 'anime',
+    isVip: false,
+    isNew: true,
+  },
+  {
+    id: 'a4',
+    title: 'My Hero Academia',
+    description:
+      'A superhero-loving boy without any powers is determined to enroll in a prestigious hero academy and learn what it really means to be a hero.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2016,
+    genres: ['Action', 'Comedy', 'Superhero'],
+    type: 'anime',
+    isVip: false,
+    isNew: false,
+  },
+  {
+    id: 'a5',
+    title: 'One Piece',
+    description:
+      'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure ever left by the legendary Pirate, Gold Roger.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 1999,
+    genres: ['Action', 'Adventure', 'Comedy'],
+    type: 'anime',
+    isVip: true,
+    isNew: false,
+  },
+  {
+    id: 'a6',
+    title: 'Naruto',
+    description:
+      "Naruto Uzumaki, a mischievous adolescent ninja, struggles as he searches for recognition and dreams of becoming the Hokage, the village's leader and strongest ninja.",
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2002,
+    genres: ['Action', 'Adventure', 'Fantasy'],
+    type: 'anime',
+    isVip: false,
+    isNew: false,
+  },
+  {
+    id: 'a7',
+    title: 'Bleach',
+    description:
+      "High school student Ichigo Kurosaki, who has the ability to see ghosts, gains soul reaper powers from Rukia Kuchiki and sets out to save the world from 'Hollows'.",
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2004,
+    genres: ['Action', 'Adventure', 'Supernatural'],
+    type: 'anime',
+    isVip: false,
+    isNew: true,
+  },
+  {
+    id: 'a8',
+    title: 'Death Note',
+    description:
+      'An intelligent high school student goes on a secret crusade to eliminate criminals from the world after discovering a notebook capable of killing anyone whose name is written into it.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2006,
+    genres: ['Mystery', 'Psychological', 'Supernatural'],
+    type: 'anime',
+    isVip: true,
+    isNew: false,
+  },
+  {
+    id: 'a9',
+    title: 'Fullmetal Alchemist: Brotherhood',
+    description:
+      "Two brothers search for a Philosopher's Stone after an attempt to revive their deceased mother goes wrong and leaves them in damaged physical forms.",
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2009,
+    genres: ['Action', 'Adventure', 'Drama'],
+    type: 'anime',
+    isVip: false,
+    isNew: false,
+  },
+  {
+    id: 'a10',
+    title: 'Hunter x Hunter',
+    description:
+      'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks for his father who left him when he was younger.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2011,
+    genres: ['Action', 'Adventure', 'Fantasy'],
+    type: 'anime',
+    isVip: true,
+    isNew: false,
+  },
+  {
+    id: 'a11',
+    title: 'Chainsaw Man',
+    description:
+      'Following a betrayal, a young man left for dead is reborn as a powerful devil-human hybrid after merging with his pet devil and is soon enlisted into an organization dedicated to hunting devils.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2022,
+    genres: ['Action', 'Horror', 'Supernatural'],
+    type: 'anime',
+    isVip: false,
+    isNew: true,
+  },
+  {
+    id: 'a12',
+    title: 'Spy x Family',
+    description:
+      'A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together.',
+    posterUrl: '/placeholder.svg?height=450&width=300',
+    backdropUrl: '/placeholder.svg?height=800&width=1600',
+    releaseYear: 2022,
+    genres: ['Action', 'Comedy', 'Slice of Life'],
+    type: 'anime',
+    isVip: true,
+    isNew: true,
+  },
+];
+
+// Mock anime schedule data
+const mockAnimeSchedule = {
+  Monday: [
+    {
+      id: 'a3',
+      title: 'Jujutsu Kaisen',
+      description:
+        'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '18:00',
+      nextEpisode: '24',
+      genres: ['Action', 'Supernatural'],
+      isVip: false,
+    },
+    {
+      id: 'a7',
+      title: 'Bleach',
+      description:
+        'High school student Ichigo Kurosaki, who has the ability to see ghosts, gains soul reaper powers.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '20:30',
+      nextEpisode: '367',
+      genres: ['Action', 'Adventure', 'Supernatural'],
+      isVip: false,
+    },
+  ],
+  Tuesday: [
+    {
+      id: 'a4',
+      title: 'My Hero Academia',
+      description:
+        'A superhero-loving boy without any powers is determined to enroll in a prestigious hero academy.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '19:00',
+      nextEpisode: '113',
+      genres: ['Action', 'Comedy', 'Superhero'],
+      isVip: false,
+    },
+  ],
+  Wednesday: [
+    {
+      id: 'a12',
+      title: 'Spy x Family',
+      description:
+        'A spy on an undercover mission gets married and adopts a child as part of his cover.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '18:30',
+      nextEpisode: '12',
+      genres: ['Action', 'Comedy', 'Slice of Life'],
+      isVip: true,
+    },
+  ],
+  Thursday: [
+    {
+      id: 'a1',
+      title: 'Attack on Titan',
+      description:
+        'In a world where humanity lives inside cities surrounded by enormous walls due to the Titans.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '22:00',
+      nextEpisode: '88',
+      genres: ['Action', 'Drama', 'Fantasy'],
+      isVip: false,
+    },
+  ],
+  Friday: [
+    {
+      id: 'a2',
+      title: 'Demon Slayer',
+      description:
+        'A young boy becomes a demon slayer after his family is slaughtered and his sister is turned into a demon.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '23:00',
+      nextEpisode: '44',
+      genres: ['Action', 'Fantasy', 'Historical'],
+      isVip: true,
+    },
+    {
+      id: 'a11',
+      title: 'Chainsaw Man',
+      description:
+        'Following a betrayal, a young man left for dead is reborn as a powerful devil-human hybrid.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '20:00',
+      nextEpisode: '13',
+      genres: ['Action', 'Horror', 'Supernatural'],
+      isVip: false,
+    },
+  ],
+  Saturday: [
+    {
+      id: 'a5',
+      title: 'One Piece',
+      description:
+        'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '10:00',
+      nextEpisode: '1071',
+      genres: ['Action', 'Adventure', 'Comedy'],
+      isVip: true,
+    },
+    {
+      id: 'a9',
+      title: 'Fullmetal Alchemist: Brotherhood',
+      description:
+        "Two brothers search for a Philosopher's Stone after an attempt to revive their deceased mother goes wrong.",
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '16:00',
+      nextEpisode: '64',
+      genres: ['Action', 'Adventure', 'Drama'],
+      isVip: false,
+    },
+  ],
+  Sunday: [
+    {
+      id: 'a10',
+      title: 'Hunter x Hunter',
+      description:
+        'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness.',
+      posterUrl: '/placeholder.svg?height=450&width=300',
+      releaseTime: '17:30',
+      nextEpisode: '149',
+      genres: ['Action', 'Adventure', 'Fantasy'],
+      isVip: true,
+    },
+  ],
+};
+
+// Mock anime news data
+const mockAnimeNews = [
+  {
+    id: 'n1',
+    title: 'Demon Slayer Season 4 Announced for 2024',
+    excerpt:
+      'The hit anime series Demon Slayer will return for a fourth season, covering the Hashira Training Arc.',
+    content: [
+      "Aniplex and Ufotable have officially announced that Demon Slayer: Kimetsu no Yaiba will return for a fourth season in 2024, adapting the Hashira Training Arc from Koyoharu Gotouge's original manga.",
+      'The announcement came during a special event in Tokyo, where a teaser trailer was shown to excited fans. The new season will follow Tanjiro and the other Demon Slayers as they undergo intense training with the Hashira to prepare for the final battle against Muzan Kibutsuji.',
+      'Season 3, which covered the Swordsmith Village Arc, concluded earlier this year to critical acclaim. The series continues to be one of the most popular anime worldwide, with the Demon Slayer: Mugen Train movie becoming the highest-grossing Japanese film of all time.',
+      'Voice actors Natsuki Hanae (Tanjiro), Akari Kitō (Nezuko), and other main cast members are confirmed to return for the new season.',
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    images: [
+      '/placeholder.svg?height=360&width=640',
+      '/placeholder.svg?height=360&width=640',
+    ],
+    category: 'updates',
+    date: '2023-12-10',
+    author: 'Anime News Network',
+    relatedShows: [
+      {
+        id: 'a2',
+        title: 'Demon Slayer',
+        posterUrl: '/placeholder.svg?height=450&width=300',
+      },
+    ],
+  },
+  {
+    id: 'n2',
+    title: 'Jujutsu Kaisen Manga Enters Final Arc',
+    excerpt:
+      'Creator Gege Akutami confirms that the popular manga series is heading toward its conclusion.',
+    content: [
+      'Jujutsu Kaisen creator Gege Akutami has confirmed that the manga has entered its final arc, signaling that the story is approaching its conclusion after a successful run in Weekly Shonen Jump.',
+      "The announcement came in the author's note of the latest chapter, where Akutami thanked fans for their continued support and promised an exciting finale to the series that has captivated readers worldwide.",
+      'The manga, which began serialization in 2018, follows the story of Yuji Itadori, a high school student who joins a secret organization of Jujutsu Sorcerers to kill a powerful Curse named Ryomen Sukuna, of whom Yuji becomes the host.',
+      'The anime adaptation by MAPPA has also been incredibly successful, with its second season currently airing to critical acclaim. Fans are speculating that the final arc could take 1-2 years to complete, depending on the pacing.',
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    category: 'updates',
+    date: '2023-11-28',
+    author: 'Manga Plus',
+    relatedShows: [
+      {
+        id: 'a3',
+        title: 'Jujutsu Kaisen',
+        posterUrl: '/placeholder.svg?height=450&width=300',
+      },
+    ],
+  },
+  {
+    id: 'n3',
+    title: 'Chainsaw Man Part 2 Anime Adaptation Confirmed',
+    excerpt:
+      "MAPPA announces they will adapt the second part of Tatsuki Fujimoto's popular manga series.",
+    content: [
+      'Animation studio MAPPA has officially announced that they will be producing an anime adaptation of Chainsaw Man Part 2: School Arc, following the success of the first season which covered the Public Safety Arc.',
+      'The announcement was made during Jump Festa 2023, where a brief teaser visual was revealed showing the new protagonist, Asa Mitaka, alongside Denji. No release date has been confirmed yet, but production is said to be already underway.',
+      'Chainsaw Man Part 2 began serialization in July 2022 and follows a new storyline set after the events of Part 1, with Denji now attending high school while still working as a Devil Hunter.',
+      'The first season of Chainsaw Man was praised for its high-quality animation, faithful adaptation of the source material, and unique opening sequences for each episode. Fans are eagerly anticipating how MAPPA will handle the new arc, which introduces several new characters and explores different themes.',
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    category: 'releases',
+    date: '2023-12-05',
+    author: 'Crunchyroll News',
+    relatedShows: [
+      {
+        id: 'a11',
+        title: 'Chainsaw Man',
+        posterUrl: '/placeholder.svg?height=450&width=300',
+      },
+    ],
+  },
+  {
+    id: 'n4',
+    title: 'One Piece Film: Red Breaks Box Office Records',
+    excerpt:
+      "The 15th One Piece film becomes the franchise's highest-grossing movie to date.",
+    content: [
+      'One Piece Film: Red has officially become the highest-grossing film in the One Piece franchise, surpassing 15 billion yen (approximately $103 million) at the Japanese box office alone.',
+      'The film, which focuses on the character Shanks and introduces his daughter Uta, has been a massive success worldwide, with strong performances in North America, France, and other international markets.',
+      'Directed by Goro Taniguchi and written by Tsutomu Kuroiwa, the film features original character designs by One Piece creator Eiichiro Oda and music by Yasutaka Nakata.',
+      'The success of Film: Red demonstrates the continued popularity of the One Piece franchise, which recently celebrated its 25th anniversary and is approaching its 1000th episode in the anime series.',
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    category: 'releases',
+    date: '2023-10-15',
+    author: 'Box Office Mojo',
+    relatedShows: [
+      {
+        id: 'a5',
+        title: 'One Piece',
+        posterUrl: '/placeholder.svg?height=450&width=300',
+      },
+    ],
+  },
+  {
+    id: 'n5',
+    title: 'Attack on Titan Creator Launches New Manga Series',
+    excerpt:
+      'Hajime Isayama returns with a new project after concluding his hit series Attack on Titan.',
+    content: [
+      'Hajime Isayama, the creator of the globally successful manga and anime series Attack on Titan, has announced his return to the manga world with a brand new series set to begin serialization next spring.',
+      "The new project, which remains untitled, will be a departure from the dark fantasy themes of Attack on Titan, with Isayama describing it as a 'science fiction story with elements of mystery' in a recent interview.",
+      'Attack on Titan concluded in April 2021 after an 11-year run, with the final season of the anime adaptation finishing earlier this year. The series was a massive success, selling over 100 million copies worldwide and receiving critical acclaim for its complex narrative and themes.',
+      "Fans have expressed excitement about Isayama's return, with social media buzzing about what the new series might entail. The author has stated that he took time off after completing Attack on Titan to rest and gather new ideas before embarking on his next project.",
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    category: 'interviews',
+    date: '2023-11-03',
+    author: 'Kodansha Comics',
+    relatedShows: [
+      {
+        id: 'a1',
+        title: 'Attack on Titan',
+        posterUrl: '/placeholder.svg?height=450&width=300',
+      },
+    ],
+  },
+  {
+    id: 'n6',
+    title: 'Anime Japan 2024 Announces Dates and Featured Studios',
+    excerpt:
+      "The largest anime convention in Japan reveals its lineup for next year's event.",
+    content: [
+      'Anime Japan has announced the dates and participating studios for its 2024 event, which will be held at Tokyo Big Sight from March 23-26, 2024.',
+      'Major studios including MAPPA, Ufotable, Kyoto Animation, Wit Studio, and Production I.G have confirmed their attendance, with special stage events and exclusive announcements planned throughout the four-day convention.',
+      "This year's theme is 'Connecting Through Animation,' focusing on how anime brings people together across cultural and language barriers. The event will feature exhibition booths, stage performances, voice actor appearances, and exclusive merchandise.",
+      'After reduced attendance during the pandemic years, Anime Japan 2024 is expected to return to full capacity, with organizers preparing for over 150,000 attendees. International fans unable to attend in person will be able to watch selected stage events via official livestreams.',
+    ],
+    coverImage: '/placeholder.svg?height=720&width=1280',
+    category: 'events',
+    date: '2023-12-01',
+    author: 'Anime Japan Official',
+  },
+];
+
 export async function fetchOngoingAnime() {
   try {
     const response = await fetch('http://localhost:3001/otakudesu/ongoing');
@@ -830,4 +1257,27 @@ export async function getCategoryShows(category) {
 
   // Default: return all shows
   return mockShows;
+}
+
+// API functions for new pages
+export async function getAnimeList() {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return mockAnimeList;
+}
+
+export async function getAnimeSchedule() {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return mockAnimeSchedule;
+}
+
+export async function getAnimeNews() {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return mockAnimeNews;
+}
+
+export async function getNewsDetail(id) {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  const news = mockAnimeNews.find((item) => item.id === id);
+  if (!news) throw new Error('News article not found');
+  return news;
 }
