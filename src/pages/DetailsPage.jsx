@@ -87,7 +87,7 @@ function DetailsPage() {
             rating: animeData.score.value || 'N/A',
             duration: animeData.duration || 'Unknown Duration',
             status: animeData.status || 'Unknown Status',
-            downloadUrl: batchDetails.downloadUrl || [],
+            downloadUrl: batchDetails?.downloadUrl || [],
             recommendedAnimeList:
               animeData.recommendedAnimeList || 'Unknown Recomended',
           });
@@ -375,16 +375,21 @@ function DetailsPage() {
             >
               Details
             </button>
-            <button
-              className={`pb-3 px-1 text-sm font-medium ${
-                activeTab === 'download'
-                  ? 'text-white border-b-2 border-primary'
-                  : 'text-gray-400'
-              }`}
-              onClick={() => setActiveTab('download')}
-            >
-              Download Batch
-            </button>
+            {console.log('show.downloadUrl', show.downloadUrl)}
+
+            {show.downloadUrl && show.downloadUrl.length > 0 && (
+              <button
+                className={`pb-3 px-1 text-sm font-medium ${
+                  activeTab === 'download'
+                    ? 'text-white border-b-2 border-primary'
+                    : 'text-gray-400'
+                }`}
+                onClick={() => setActiveTab('download')}
+              >
+                Download Batch
+              </button>
+            )}
+
             <button
               className={`pb-3 px-1 text-sm font-medium ${
                 activeTab === 'related'
