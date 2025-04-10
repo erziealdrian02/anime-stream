@@ -10,7 +10,7 @@ import CategoryPageSkeletonLoader from '../components/loader/CategoryPageSkeleto
 export async function fetchGenres() {
   try {
     // Ambil anime dari genre awal (action) untuk sampling genre
-    const { animeList } = await fetchAnimebyCategory('action', 1);
+    const { animeList } = await fetchAnimebyCategory(genreId, 1);
 
     // Extract all unique genres
     const genresMap = new Map();
@@ -58,6 +58,36 @@ function CategoryPage() {
   });
   const [hasMore, setHasMore] = useState(true);
 
+  // Format anime data helper function
+  const formatAnimeData = (anime) => ({
+    id: anime.animeId,
+    title: anime.title,
+    posterUrl: anime.poster,
+    backdropUrl: anime.poster, // Using poster as backdrop since we don't have a specific backdrop
+    href: anime.href,
+    episodes: anime.episodes,
+    releaseDay: anime.releaseDay,
+    latestReleaseDate: anime.latestReleaseDate,
+    score: anime.score || 'N/A',
+    status: anime.status || 'Ongoing',
+    description: Array.isArray(anime.synopsis)
+      ? anime.synopsis.join(' ')
+      : typeof anime.synopsis === 'string'
+      ? anime.synopsis
+      : typeof anime.synopsis === 'object' && anime.synopsis?.paragraphs
+      ? anime.synopsis.paragraphs.join(' ')
+      : 'No description available',
+    releaseYear: anime.aired ? parseInt(anime.aired.split(' ')[2]) : 2025,
+    popularity: parseFloat(anime.score) || 0,
+    type: 'anime',
+    genres: anime.genres || [],
+    isNew:
+      anime.latestReleaseDate &&
+      new Date(anime.latestReleaseDate) >=
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 hari terakhir
+    isVip: Math.random() > 0.8, // Random VIP tags for demo
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -76,36 +106,12 @@ function CategoryPage() {
           return;
         }
 
-        const formattedData = animeData.animeList.map((anime) => ({
-          id: anime.animeId,
-          title: anime.title,
-          posterUrl: anime.poster,
-          backdropUrl: anime.poster, // Using poster as backdrop since we don't have a specific backdrop
-          href: anime.href,
-          episodes: anime.episodes,
-          releaseDay: anime.releaseDay,
-          latestReleaseDate: anime.latestReleaseDate,
-          score: anime.score || 'N/A',
-          status: anime.status || 'Ongoing',
-          description: Array.isArray(anime.synopsis)
-            ? anime.synopsis.join(' ')
-            : typeof anime.synopsis === 'string'
-            ? anime.synopsis
-            : typeof anime.synopsis === 'object' && anime.synopsis?.paragraphs
-            ? anime.synopsis.paragraphs.join(' ')
-            : 'No description available',
-          releaseYear: anime.aired ? parseInt(anime.aired.split(' ')[2]) : 2025,
-          popularity: parseFloat(anime.score) || 0,
-          type: 'anime',
-          genres: anime.genres || [],
-          isNew:
-            anime.latestReleaseDate &&
-            new Date(anime.latestReleaseDate) >=
-              new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 hari terakhir
-          isVip: Math.random() > 0.8, // Random VIP tags for demo
-        }));
+        const formattedData = animeData.animeList.map(formatAnimeData);
 
-        setShows(formattedData);
+        // Sort initial data here
+        const sortedInitialData = sortAnimeData(formattedData);
+
+        setShows(sortedInitialData);
         setGenres(genresData);
 
         // Set pagination info
@@ -124,6 +130,28 @@ function CategoryPage() {
 
     fetchData();
   }, [genreId]); // Re-fetch when genreId changes
+
+  // Helper function to sort anime data
+  const sortAnimeData = (animeList) => {
+    return [...animeList].sort((a, b) => {
+      // Prioritize shows with score first
+      if (a.score !== 'N/A' && b.score === 'N/A') return -1;
+      if (a.score === 'N/A' && b.score !== 'N/A') return 1;
+
+      // Then sort by score
+      if (parseFloat(a.score) > parseFloat(b.score)) return -1;
+      if (parseFloat(a.score) < parseFloat(b.score)) return 1;
+
+      // If scores are equal or both N/A, sort by release date
+      const dateA = a.latestReleaseDate
+        ? new Date(a.latestReleaseDate)
+        : new Date(0);
+      const dateB = b.latestReleaseDate
+        ? new Date(b.latestReleaseDate)
+        : new Date(0);
+      return dateB - dateA;
+    });
+  };
 
   const loadMoreAnime = async () => {
     if (loadingMore || pagination.currentPage >= pagination.totalPages) return;
@@ -147,36 +175,9 @@ function CategoryPage() {
 
       if (Array.isArray(moreAnime) && moreAnime.length > 0) {
         // Format the new anime data
-        const formattedMoreData = moreAnime.map((anime) => ({
-          id: anime.animeId,
-          title: anime.title,
-          posterUrl: anime.poster,
-          backdropUrl: anime.poster,
-          href: anime.href,
-          episodes: anime.episodes,
-          releaseDay: anime.releaseDay,
-          latestReleaseDate: anime.latestReleaseDate,
-          score: anime.score || 'N/A',
-          status: anime.status || 'Ongoing',
-          description: Array.isArray(anime.synopsis)
-            ? anime.synopsis.join(' ')
-            : typeof anime.synopsis === 'string'
-            ? anime.synopsis
-            : typeof anime.synopsis === 'object' && anime.synopsis?.paragraphs
-            ? anime.synopsis.paragraphs.join(' ')
-            : 'No description available',
-          releaseYear: anime.aired ? parseInt(anime.aired.split(' ')[2]) : 2025,
-          popularity: parseFloat(anime.score) || 0,
-          type: 'anime',
-          genres: anime.genres || [],
-          isNew:
-            anime.latestReleaseDate &&
-            new Date(anime.latestReleaseDate) >=
-              new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          isVip: Math.random() > 0.8,
-        }));
+        const formattedMoreData = moreAnime.map(formatAnimeData);
 
-        // Add the new anime to the existing ones
+        // Don't sort the new data - just append it
         setShows((prevShows) => [...prevShows, ...formattedMoreData]);
 
         // Update pagination info
@@ -211,6 +212,7 @@ function CategoryPage() {
     return <CategoryPageSkeletonLoader />;
   }
 
+  // Filter shows based on activeFilter
   const filteredShows =
     activeFilter === 'all'
       ? shows
@@ -220,26 +222,6 @@ function CategoryPage() {
           show.genres.some((genre) => genre.genreId === activeFilter)
         );
 
-  // Sortir berdasarkan tanggal rilis terbaru
-  const sortedShows = [...filteredShows].sort((a, b) => {
-    // Prioritize shows with score first
-    if (a.score !== 'N/A' && b.score === 'N/A') return -1;
-    if (a.score === 'N/A' && b.score !== 'N/A') return 1;
-
-    // Then sort by score
-    if (parseFloat(a.score) > parseFloat(b.score)) return -1;
-    if (parseFloat(a.score) < parseFloat(b.score)) return 1;
-
-    // If scores are equal or both N/A, sort by release date
-    const dateA = a.latestReleaseDate
-      ? new Date(a.latestReleaseDate)
-      : new Date(0);
-    const dateB = b.latestReleaseDate
-      ? new Date(b.latestReleaseDate)
-      : new Date(0);
-    return dateB - dateA;
-  });
-
   // Pilih top anime untuk carousel
   const featuredAnime = shows
     .filter((show) => parseFloat(show.score) > 7 || show.score === 'N/A')
@@ -248,8 +230,8 @@ function CategoryPage() {
   const carouselShows =
     featuredAnime.length > 0
       ? [featuredAnime[activeCarouselIndex % featuredAnime.length]]
-      : sortedShows.length > 0
-      ? [sortedShows[0]]
+      : filteredShows.length > 0
+      ? [filteredShows[0]]
       : [];
 
   // Get most popular genres for filter buttons (limit to 10)
@@ -409,12 +391,12 @@ function CategoryPage() {
         {/* Category Title */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold">
-            {genreId === 'action'
-              ? 'Action Anime'
-              : genres.find((g) => g.genreId === genreId)?.title || 'Anime'}
+            {genres.find((g) => g.genreId === genreId)?.title ||
+              genreId.charAt(0).toUpperCase() + genreId.slice(1)}{' '}
+            Anime
           </h1>
           <p className="text-gray-400">
-            Showing {sortedShows.length} of {pagination.totalPages * 12} anime
+            Showing {filteredShows.length} of {pagination.totalPages * 12} anime
           </p>
         </div>
 
@@ -463,7 +445,7 @@ function CategoryPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {sortedShows.map((show) => (
+            {filteredShows.map((show) => (
               <div key={show.id} className="flex-shrink-0 w-full">
                 <ShowBigCard show={show} />
               </div>
@@ -471,7 +453,7 @@ function CategoryPage() {
           </div>
 
           {/* No Results Message */}
-          {sortedShows.length === 0 && !loading && (
+          {filteredShows.length === 0 && !loading && (
             <div className="text-center py-10">
               <p className="text-gray-400">
                 No anime found for the selected filter: "
@@ -543,7 +525,7 @@ function CategoryPage() {
 
           {/* Pagination Info */}
           <div className="text-center text-gray-500 text-sm mt-4">
-            Menampilkan {sortedShows.length} dari {pagination.totalPages * 12}{' '}
+            Menampilkan {filteredShows.length} dari {pagination.totalPages * 12}{' '}
             anime
           </div>
         </div>

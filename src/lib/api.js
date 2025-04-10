@@ -1791,6 +1791,7 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
         }
       })
     );
+    console.log('detailedAnimeList dari lib', detailedAnimeList);
 
     return detailedAnimeList.filter(Boolean);
   } catch (error) {

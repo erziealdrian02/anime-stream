@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ShowBigCard from './ShowBigCard';
+import ShowMovieCard from './ShowMovieCard';
 import { fetchMovieAnime } from '../lib/api';
 import MovieSkeletonLoader from './loader/MovieSkeletonLoader';
 
@@ -71,7 +71,7 @@ function CompleteSection() {
                 key={show.id}
                 className="flex-shrink-0 w-[190px] md:w-[250px]"
               >
-                <ShowBigCard show={show} />
+                <ShowMovieCard show={show} />
               </div>
             ))}
           </div>
