@@ -61,7 +61,7 @@ function HomePage() {
         <CategorySection />
 
         {/* Top Trending */}
-        <PopularSection />
+        {/* <PopularSection /> */}
 
         {/* Movie Section */}
         <MovieSection />

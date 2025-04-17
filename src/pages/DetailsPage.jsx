@@ -453,7 +453,7 @@ function DetailsPage() {
                     .flat()
                     .map((episode, index) => {
                       // Create a unique key using index and episodeId
-                      const episodeKey = `dropdown-${
+                      const episodeKey = `${
                         episode.episodeId || index
                       }`;
                       return (
