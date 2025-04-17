@@ -160,294 +160,6 @@ const mockEpisodes = [
   },
 ];
 
-// Mock anime list data
-const mockAnimeList = [
-  {
-    id: 'a1',
-    title: 'Attack on Titan',
-    description:
-      'In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, gigantic humanoid creatures who devour humans seemingly without reason.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2013,
-    genres: ['Action', 'Drama', 'Fantasy'],
-    type: 'anime',
-    isVip: false,
-    isNew: false,
-  },
-  {
-    id: 'a2',
-    title: 'Demon Slayer',
-    description:
-      'A young boy becomes a demon slayer after his family is slaughtered and his sister is turned into a demon.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2019,
-    genres: ['Action', 'Fantasy', 'Historical'],
-    type: 'anime',
-    isVip: true,
-    isNew: false,
-  },
-  {
-    id: 'a3',
-    title: 'Jujutsu Kaisen',
-    description:
-      "A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman school to be able to locate the demon's other body parts and thus exorcise himself.",
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2020,
-    genres: ['Action', 'Supernatural'],
-    type: 'anime',
-    isVip: false,
-    isNew: true,
-  },
-  {
-    id: 'a4',
-    title: 'My Hero Academia',
-    description:
-      'A superhero-loving boy without any powers is determined to enroll in a prestigious hero academy and learn what it really means to be a hero.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2016,
-    genres: ['Action', 'Comedy', 'Superhero'],
-    type: 'anime',
-    isVip: false,
-    isNew: false,
-  },
-  {
-    id: 'a5',
-    title: 'One Piece',
-    description:
-      'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure ever left by the legendary Pirate, Gold Roger.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 1999,
-    genres: ['Action', 'Adventure', 'Comedy'],
-    type: 'anime',
-    isVip: true,
-    isNew: false,
-  },
-  {
-    id: 'a6',
-    title: 'Naruto',
-    description:
-      "Naruto Uzumaki, a mischievous adolescent ninja, struggles as he searches for recognition and dreams of becoming the Hokage, the village's leader and strongest ninja.",
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2002,
-    genres: ['Action', 'Adventure', 'Fantasy'],
-    type: 'anime',
-    isVip: false,
-    isNew: false,
-  },
-  {
-    id: 'a7',
-    title: 'Bleach',
-    description:
-      "High school student Ichigo Kurosaki, who has the ability to see ghosts, gains soul reaper powers from Rukia Kuchiki and sets out to save the world from 'Hollows'.",
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2004,
-    genres: ['Action', 'Adventure', 'Supernatural'],
-    type: 'anime',
-    isVip: false,
-    isNew: true,
-  },
-  {
-    id: 'a8',
-    title: 'Death Note',
-    description:
-      'An intelligent high school student goes on a secret crusade to eliminate criminals from the world after discovering a notebook capable of killing anyone whose name is written into it.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2006,
-    genres: ['Mystery', 'Psychological', 'Supernatural'],
-    type: 'anime',
-    isVip: true,
-    isNew: false,
-  },
-  {
-    id: 'a9',
-    title: 'Fullmetal Alchemist: Brotherhood',
-    description:
-      "Two brothers search for a Philosopher's Stone after an attempt to revive their deceased mother goes wrong and leaves them in damaged physical forms.",
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2009,
-    genres: ['Action', 'Adventure', 'Drama'],
-    type: 'anime',
-    isVip: false,
-    isNew: false,
-  },
-  {
-    id: 'a10',
-    title: 'Hunter x Hunter',
-    description:
-      'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks for his father who left him when he was younger.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2011,
-    genres: ['Action', 'Adventure', 'Fantasy'],
-    type: 'anime',
-    isVip: true,
-    isNew: false,
-  },
-  {
-    id: 'a11',
-    title: 'Chainsaw Man',
-    description:
-      'Following a betrayal, a young man left for dead is reborn as a powerful devil-human hybrid after merging with his pet devil and is soon enlisted into an organization dedicated to hunting devils.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2022,
-    genres: ['Action', 'Horror', 'Supernatural'],
-    type: 'anime',
-    isVip: false,
-    isNew: true,
-  },
-  {
-    id: 'a12',
-    title: 'Spy x Family',
-    description:
-      'A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together.',
-    posterUrl: '/placeholder.svg?height=450&width=300',
-    backdropUrl: '/placeholder.svg?height=800&width=1600',
-    releaseYear: 2022,
-    genres: ['Action', 'Comedy', 'Slice of Life'],
-    type: 'anime',
-    isVip: true,
-    isNew: true,
-  },
-];
-
-// Mock anime schedule data
-const mockAnimeSchedule = {
-  Monday: [
-    {
-      id: 'a3',
-      title: 'Jujutsu Kaisen',
-      description:
-        'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '18:00',
-      nextEpisode: '24',
-      genres: ['Action', 'Supernatural'],
-      isVip: false,
-    },
-    {
-      id: 'a7',
-      title: 'Bleach',
-      description:
-        'High school student Ichigo Kurosaki, who has the ability to see ghosts, gains soul reaper powers.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '20:30',
-      nextEpisode: '367',
-      genres: ['Action', 'Adventure', 'Supernatural'],
-      isVip: false,
-    },
-  ],
-  Tuesday: [
-    {
-      id: 'a4',
-      title: 'My Hero Academia',
-      description:
-        'A superhero-loving boy without any powers is determined to enroll in a prestigious hero academy.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '19:00',
-      nextEpisode: '113',
-      genres: ['Action', 'Comedy', 'Superhero'],
-      isVip: false,
-    },
-  ],
-  Wednesday: [
-    {
-      id: 'a12',
-      title: 'Spy x Family',
-      description:
-        'A spy on an undercover mission gets married and adopts a child as part of his cover.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '18:30',
-      nextEpisode: '12',
-      genres: ['Action', 'Comedy', 'Slice of Life'],
-      isVip: true,
-    },
-  ],
-  Thursday: [
-    {
-      id: 'a1',
-      title: 'Attack on Titan',
-      description:
-        'In a world where humanity lives inside cities surrounded by enormous walls due to the Titans.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '22:00',
-      nextEpisode: '88',
-      genres: ['Action', 'Drama', 'Fantasy'],
-      isVip: false,
-    },
-  ],
-  Friday: [
-    {
-      id: 'a2',
-      title: 'Demon Slayer',
-      description:
-        'A young boy becomes a demon slayer after his family is slaughtered and his sister is turned into a demon.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '23:00',
-      nextEpisode: '44',
-      genres: ['Action', 'Fantasy', 'Historical'],
-      isVip: true,
-    },
-    {
-      id: 'a11',
-      title: 'Chainsaw Man',
-      description:
-        'Following a betrayal, a young man left for dead is reborn as a powerful devil-human hybrid.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '20:00',
-      nextEpisode: '13',
-      genres: ['Action', 'Horror', 'Supernatural'],
-      isVip: false,
-    },
-  ],
-  Saturday: [
-    {
-      id: 'a5',
-      title: 'One Piece',
-      description:
-        'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '10:00',
-      nextEpisode: '1071',
-      genres: ['Action', 'Adventure', 'Comedy'],
-      isVip: true,
-    },
-    {
-      id: 'a9',
-      title: 'Fullmetal Alchemist: Brotherhood',
-      description:
-        "Two brothers search for a Philosopher's Stone after an attempt to revive their deceased mother goes wrong.",
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '16:00',
-      nextEpisode: '64',
-      genres: ['Action', 'Adventure', 'Drama'],
-      isVip: false,
-    },
-  ],
-  Sunday: [
-    {
-      id: 'a10',
-      title: 'Hunter x Hunter',
-      description:
-        'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness.',
-      posterUrl: '/placeholder.svg?height=450&width=300',
-      releaseTime: '17:30',
-      nextEpisode: '149',
-      genres: ['Action', 'Adventure', 'Fantasy'],
-      isVip: true,
-    },
-  ],
-};
-
 // Mock anime news data
 const mockAnimeNews = [
   {
@@ -830,7 +542,7 @@ export async function fetchDetailAnime(id) {
       animeData.batch && animeData.batch.batchId
         ? animeData.batch.batchId
         : null;
-    console.log('batchId dari lib', batchId);
+    // console.log('batchId dari lib', batchId);
 
     // Fetch anime details using batchId
     let batchDetails = null;
@@ -913,7 +625,7 @@ export async function fetchDetailMovie(id) {
     const result = await response.json();
 
     const animeData = result.data;
-    console.log('resul dari Movie lib', animeData);
+    // console.log('resul dari Movie lib', animeData);
 
     if (result.ok && result.data.episodeList) {
       const episodes = result.data.episodeList;
@@ -936,7 +648,7 @@ export async function fetchDetailMovie(id) {
           `http://localhost:3001/samehadaku/episode/${episodeId}`
         );
         const episodeData = await episodeResponse.json();
-        console.log('episodeData dari lib', episodeData);
+        // console.log('episodeData dari lib', episodeData);
 
         if (episodeData.ok && episodeData.data.recommendedEpisodeList) {
           const groupedEpisodes = episodeData.data.recommendedEpisodeList;
@@ -960,7 +672,7 @@ export async function fetchMoreAnime(episodeId) {
       `http://localhost:3001/samehadaku/episode/${episodeId}`
     );
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
     if (data.ok && data.data.recommendedEpisodeList) {
       return data.data.recommendedEpisodeList;
@@ -1378,6 +1090,116 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
   }
 }
 
+export async function fetchAllMovie(pageLimit = 3) {
+  try {
+    // Ambil halaman pertama untuk mendapatkan informasi total pages
+    const firstResponse = await fetch(
+      'http://localhost:3001/samehadaku/movies'
+    );
+    const firstData = await firstResponse.json();
+
+    if (
+      !firstResponse.ok ||
+      !firstData?.data?.animeList ||
+      !Array.isArray(firstData.data.animeList)
+    ) {
+      return { animeList: [], totalPages: 0, currentPage: 1 };
+    }
+
+    // Mendapatkan total halaman dari pagination
+    const totalPages = firstData.pagination.totalPages || 1;
+    const actualPageLimit = Math.min(pageLimit, totalPages);
+
+    let allAnimeList = [...firstData.data.animeList];
+
+    // Ambil halaman 2 sampai actualPageLimit (batas 3 halaman)
+    const pagePromises = [];
+    for (let page = 2; page <= actualPageLimit; page++) {
+      pagePromises.push(
+        fetch(`http://localhost:3001/samehadaku/movies?page=${page}`)
+          .then((res) => res.json())
+          .then((data) => data?.data?.animeList || [])
+      );
+    }
+
+    // Tunggu semua request pagination selesai
+    const pagesData = await Promise.all(pagePromises);
+
+    // Gabungkan semua data anime dari halaman yang diambil
+    pagesData.forEach((pageAnimeList) => {
+      if (Array.isArray(pageAnimeList)) {
+        allAnimeList = [...allAnimeList, ...pageAnimeList];
+      }
+    });
+
+    // Proses untuk mendapatkan detail dari setiap anime
+    const detailedAnimeList = await Promise.all(
+      allAnimeList.map(async (anime) => {
+        try {
+          const detailsResponse = await fetch(
+            `http://localhost:3001/samehadaku/anime/${anime.animeId}`
+          );
+
+          if (!detailsResponse.ok) {
+            throw new Error(`Gagal mengambil data untuk ${anime.animeId}`);
+          }
+
+          const details = await detailsResponse.json();
+          // Akses data melalui properti 'data' terlebih dahulu
+          const animeDetails = details.data;
+          console.log('animeDetails dari lib', animeDetails);
+
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            episodes: anime.episodes,
+            releaseDay: anime.releaseDay,
+            latestReleaseDate: anime.latestReleaseDate,
+            score: animeDetails?.score?.value ?? 'N/A',
+            status: animeDetails?.status ?? 'Complete',
+            japanese: animeDetails?.japanese ?? '',
+            duration: animeDetails?.duration ?? '',
+            aired: animeDetails?.aired ?? '',
+            synopsis: animeDetails?.synopsis?.paragraphs ?? '',
+            genres: Array.isArray(animeDetails?.genreList)
+              ? animeDetails.genreList.map((genre) => ({
+                  title: genre.title || 'Unknown',
+                  genreId: genre.genreId || '',
+                }))
+              : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching details for ${anime.animeId}:`, error);
+          // Return basic anime info tanpa detail jika gagal fetch detail
+          return {
+            animeId: anime.animeId,
+            title: anime.title,
+            poster: anime.poster,
+            href: anime.href,
+            episodes: anime.episodes,
+            releaseDay: anime.releaseDay,
+            latestReleaseDate: anime.latestReleaseDate,
+            score: 'N/A',
+            status: 'Complete',
+            genres: [],
+          };
+        }
+      })
+    );
+
+    return {
+      animeList: detailedAnimeList.filter(Boolean),
+      totalPages: totalPages,
+      currentPage: actualPageLimit,
+    };
+  } catch (error) {
+    console.error('Error fetching complete anime:', error);
+    return { animeList: [], totalPages: 0, currentPage: 1 };
+  }
+}
+
 export async function fetchMoreCompleteAnime(startPage, endPage) {
   try {
     const pagePromises = [];
@@ -1465,7 +1287,7 @@ export async function fetchAllAnime() {
   try {
     const response = await fetch('http://localhost:3001/otakudesu/anime');
     const data = await response.json();
-    console.log('Result dari lib:', data);
+    // console.log('Result dari lib:', data);
 
     if (
       !response.ok ||
@@ -1476,7 +1298,7 @@ export async function fetchAllAnime() {
     }
 
     const animeList = data.data.list.animeList;
-    console.log('animeList dari lib:', animeList);
+    // console.log('animeList dari lib:', animeList);
 
     const detailedAnimeList = await Promise.all(
       animeList.map(async (anime) => {
@@ -1490,7 +1312,7 @@ export async function fetchAllAnime() {
           }
 
           const details = await detailsResponse.json();
-          console.log('Details dari lib:', details);
+          // console.log('Details dari lib:', details);
 
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
@@ -1531,14 +1353,14 @@ export async function fetchScheduleAnime() {
   try {
     const response = await fetch('http://localhost:3001/otakudesu/schedule');
     const data = await response.json();
-    console.log('Result dari lib:', data);
+    // console.log('Result dari lib:', data);
 
     if (!response.ok || !data?.data?.days || !Array.isArray(data.data.days)) {
       return [];
     }
 
     const scheduleAnime = data.data.days;
-    console.log('scheduleAnime dari lib:', scheduleAnime);
+    // console.log('scheduleAnime dari lib:', scheduleAnime);
 
     // Create an array to hold all anime with details across all days
     const allDetailedAnime = [];
@@ -1559,7 +1381,7 @@ export async function fetchScheduleAnime() {
 
             const details = await detailsResponse.json();
             const animeDetails = details.data;
-            console.log('animeDetails dari lib:', animeDetails);
+            // console.log('animeDetails dari lib:', animeDetails);
 
             return {
               animeId: anime.animeId,
@@ -1791,7 +1613,7 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
         }
       })
     );
-    console.log('detailedAnimeList dari lib', detailedAnimeList);
+    // console.log('detailedAnimeList dari lib', detailedAnimeList);
 
     return detailedAnimeList.filter(Boolean);
   } catch (error) {
@@ -1863,47 +1685,7 @@ export async function searchShows(query) {
   );
 }
 
-export async function getCategoryShows(category) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Handle different category types
-  if (category === 'korean-dramas') {
-    return mockShows.filter(
-      (show) => show.country === 'Korea' && show.type === 'drama'
-    );
-  } else if (category === 'chinese-dramas') {
-    return mockShows.filter(
-      (show) => show.country === 'China' && show.type === 'drama'
-    );
-  } else if (category === 'thai-dramas') {
-    return mockShows.filter((show) => show.country === 'Thailand');
-  } else if (category === 'variety-shows') {
-    return mockShows.filter((show) => show.type === 'variety');
-  } else if (category === 'anime') {
-    return mockShows.filter((show) => show.type === 'anime');
-  } else if (category === 'movies') {
-    return mockShows.filter((show) => show.type === 'movie');
-  } else if (category === 'new-releases') {
-    return mockShows.filter((show) => show.isNew);
-  } else if (category === 'trending') {
-    return [...mockShows].sort((a, b) => b.popularity - a.popularity);
-  }
-
-  // Default: return all shows
-  return mockShows;
-}
-
 // API functions for new pages
-export async function getAnimeList() {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  return mockAnimeList;
-}
-
-export async function getAnimeSchedule() {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  return mockAnimeSchedule;
-}
-
 export async function getAnimeNews() {
   await new Promise((resolve) => setTimeout(resolve, 800));
   return mockAnimeNews;

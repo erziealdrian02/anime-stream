@@ -49,7 +49,7 @@ function AnimeListPage() {
       setError(null);
 
       try {
-        const response = await fetch('http://localhost:3001/otakudesu/anime');
+        const response = await fetch('http://ponflix-api.vercel.app/otakudesu/anime');
         const result = await response.json();
 
         if (

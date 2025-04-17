@@ -89,10 +89,10 @@ function WatchPage() {
 
         // Jika ada defaultStreamingUrl, langsung set sebagai videoUrl
         if (originalData.defaultStreamingUrl) {
-          console.log(
-            '[STREAMING] Memuat URL streaming default:',
-            originalData.defaultStreamingUrl
-          );
+          // console.log(
+          //   '[STREAMING] Memuat URL streaming default:',
+          //   originalData.defaultStreamingUrl
+          // );
           // Tambahkan timeout kecil untuk memastikan komponen siap
           setTimeout(() => {
             setVideoUrl(originalData.defaultStreamingUrl);
@@ -185,17 +185,17 @@ function WatchPage() {
     if (!serverId) return;
 
     try {
-      console.log(
-        '[STREAMING] Starting to load video for server ID:',
-        serverId
-      );
+      // console.log(
+      //   '[STREAMING] Starting to load video for server ID:',
+      //   serverId
+      // );
       setVideoLoading(true);
 
       const streamData = await fetchStreamAnime(serverId);
-      console.log('[STREAMING] Received streaming data:', streamData);
+      // console.log('[STREAMING] Received streaming data:', streamData);
 
       if (streamData && streamData.url) {
-        console.log('[STREAMING] Setting video URL:', streamData.url);
+        // console.log('[STREAMING] Setting video URL:', streamData.url);
         setVideoUrl(streamData.url);
       } else {
         console.error('[STREAMING] No valid streaming URL found in response');
@@ -203,7 +203,7 @@ function WatchPage() {
     } catch (error) {
       console.error('[STREAMING] Error loading video:', error);
     } finally {
-      console.log('[STREAMING] Finished loading video');
+      // console.log('[STREAMING] Finished loading video');
       setVideoLoading(false);
     }
   };
@@ -302,7 +302,7 @@ function WatchPage() {
                       <button
                         key={server.serverId || idx}
                         onClick={() => {
-                          console.log(`Selected Server ID: ${server.serverId}`);
+                          // console.log(`Selected Server ID: ${server.serverId}`);
                           handleServerChange(server);
                         }}
                         className={`px-3 py-1 text-sm rounded ${

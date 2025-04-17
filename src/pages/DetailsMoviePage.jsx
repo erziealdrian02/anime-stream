@@ -115,7 +115,7 @@ function DetailsMoviePage() {
                 episode.episodeNumber || episode.episodeId || 'Unknown'
               }`,
           }));
-          console.log('fetchedEpisodes', fetchedEpisodes);
+          // console.log('fetchedEpisodes', fetchedEpisodes);
 
           setEpisodes(sanitizedEpisodes);
 
@@ -184,7 +184,7 @@ function DetailsMoviePage() {
         episodes: { ...prev.episodes, [episodeId]: true },
       }));
       const response = await fetch(
-        `http://localhost:3001/samehadaku/episode/${episodeId}`
+        `http://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
       );
       const data = await response.json();
 
@@ -358,7 +358,7 @@ function DetailsMoviePage() {
             <div>
               {/* List View */}
               <div className="space-y-4">
-                {console.log('Ini Episodessssssss', episodes)}
+                {/* {console.log('Ini Episodessssssss', episodes)} */}
                 {episodes.map((episode, index) => (
                   <div
                     key={`episode-list-${episode.episodeId || index}`}

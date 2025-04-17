@@ -188,7 +188,7 @@ function DetailsPage() {
         episodes: { ...prev.episodes, [episodeId]: true },
       }));
       const response = await fetch(
-        `http://localhost:3001/samehadaku/episode/${episodeId}`
+        `http://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
       );
       const data = await response.json();
 
@@ -375,7 +375,7 @@ function DetailsPage() {
             >
               Details
             </button>
-            {console.log('show.downloadUrl', show.downloadUrl)}
+            {/* {console.log('show.downloadUrl', show.downloadUrl)} */}
 
             {show.downloadUrl && show.downloadUrl.length > 0 && (
               <button
@@ -453,9 +453,7 @@ function DetailsPage() {
                     .flat()
                     .map((episode, index) => {
                       // Create a unique key using index and episodeId
-                      const episodeKey = `${
-                        episode.episodeId || index
-                      }`;
+                      const episodeKey = `${episode.episodeId || index}`;
                       return (
                         <div
                           key={episodeKey}

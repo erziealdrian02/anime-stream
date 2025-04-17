@@ -10,21 +10,21 @@ const VideoPlayer = ({ src, title, poster }) => {
     if (!video || !src) return;
 
     const handleError = (e) => {
-      console.error('Video Error:', video.error);
+      // console.error('Video Error:', video.error);
       setError(`Gagal memutar video: ${getVideoError(video.error)}`);
       setIsLoading(false);
     };
 
     const handleLoadStart = () => {
-      console.log('Video loading started');
+      // console.log('Video loading started');
       setIsLoading(true);
     };
 
     const handleCanPlay = () => {
-      console.log('Video can play');
+      // console.log('Video can play');
       setIsLoading(false);
       video.play().catch((e) => {
-        console.warn('Autoplay prevented:', e);
+        // console.warn('Autoplay prevented:', e);
         setError('Klik tombol play untuk memulai video');
       });
     };

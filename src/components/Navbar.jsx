@@ -32,7 +32,7 @@ function Navbar() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/otakudesu/search?q=${query}`
+        `http://ponflix-api.vercel.app/otakudesu/search?q=${query}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -173,12 +173,12 @@ function Navbar() {
       label: 'Jadwal Anime',
       highlight: location.pathname === '/schedule',
     },
-    {
-      path: '/news',
-      label: 'Berita Anime',
-      highlight: location.pathname === '/news',
-      icon: '❤️',
-    },
+    // {
+    //   path: '/news',
+    //   label: 'Berita Anime',
+    //   highlight: location.pathname === '/news',
+    //   icon: '❤️',
+    // },
   ];
 
   return (
@@ -669,7 +669,7 @@ function Navbar() {
               />
             </svg>
           </button>
-          <button className="text-gray-400 hover:text-white transition-colors duration-200">
+          {/* <button className="text-gray-400 hover:text-white transition-colors duration-200">
             <svg
               className="h-6 w-6"
               viewBox="0 0 24 24"
@@ -684,10 +684,10 @@ function Navbar() {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
+          </button> */}
 
           {/* APP button */}
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 hidden sm:flex items-center transition-colors duration-200">
+          {/* <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 hidden sm:flex items-center transition-colors duration-200">
             <svg
               className="h-4 w-4 mr-1"
               viewBox="0 0 24 24"
@@ -703,7 +703,7 @@ function Navbar() {
               />
             </svg>
             APP
-          </Button>
+          </Button> */}
         </div>
 
         {/* Small screen actions (visible on medium screens but not on mobile) */}

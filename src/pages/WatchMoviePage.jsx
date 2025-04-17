@@ -142,7 +142,7 @@ function WatchPage() {
         // Get data from API
         const id = getEpisodeIdFromUrl();
         const animeData = await fetchEpisodeMovie(id);
-        console.log('animeData', animeData);
+        // console.log('animeData', animeData);
 
         if (animeData) {
           // Make sure description is a string, not an object
@@ -168,7 +168,7 @@ function WatchPage() {
             defaultStreamingUrl:
               animeData.defaultStreamingUrl || 'Unknown Producers',
           });
-          console.log('downloadServer', show.downloadServer);
+          // console.log('downloadServer', show.downloadServer);
 
           // Set episodes from recommendedEpisodeList
           if (
