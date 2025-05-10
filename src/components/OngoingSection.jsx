@@ -55,6 +55,7 @@ function OngoingSection() {
           <h2 className="text-xl font-bold">On Going</h2>
           <Link
             to="/ongoing"
+            data-testid="see-all-ongoing"
             className="text-sm text-gray-400 hover:text-white"
           >
             Lihat Semua &gt;
