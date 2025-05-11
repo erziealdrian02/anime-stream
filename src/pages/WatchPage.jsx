@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { fetchEpisodeAnime, fetchStreamAnime } from '../lib/api';
-import VideoPlayer from '../components/VideoPlayer';
+import { useParams, useNavigate, Link, href } from 'react-router-dom';
+import ShowMovieCard from '../components/ShowMovieCard';
+import { fetchEpisodeMovie, fetchStreamMovie } from '../lib/api';
+import VideoMoviePlayer from '../components/VideoMoviePlayer';
+import WatchPageSkeleton from '../components/loader/WatchPageSkeleton';
 
 function getEpisodeIdFromUrl() {
   const queryString = window.location.search;
@@ -13,224 +15,246 @@ function getEpisodeIdFromUrl() {
 }
 
 function WatchPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [show, setShow] = useState({});
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [show, setShow] = useState({
+    title: '',
+    animeId: '',
+    poster: '',
+    releasedOn: '',
+    defaultStreamingUrl: '',
+    genres: [],
+    watchServer: [],
+    downloadServer: [],
+  });
   const [episodes, setEpisodes] = useState([]);
+  const [relatedShows, setRelatedShows] = useState([]);
   const [currentEpisode, setCurrentEpisode] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('download');
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  // These states are for the video player, but we'll keep them for UI consistency even if not implemented
+  // New states for video player
   const [videoUrl, setVideoUrl] = useState('');
   const [videoLoading, setVideoLoading] = useState(false);
-  const [availableQualities, setAvailableQualities] = useState([]);
   const [selectedQuality, setSelectedQuality] = useState('');
-  const [selectedServer, setSelectedServer] = useState(null);
+  const [selectedServer, setSelectedServer] = useState('');
+  const [availableQualities, setAvailableQualities] = useState([]);
 
-  const navigate = useNavigate();
-  const { id } = useParams();
-
-  // Function to toggle description expanded state
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const episodeId = getEpisodeIdFromUrl();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const episodeId = getEpisodeIdFromUrl() || id;
-
-        if (!episodeId) {
-          throw new Error('No episode ID found');
-        }
-
-        const { originalData, episodesInfo, animeDetails } =
-          await fetchEpisodeAnime(episodeId);
-
-        if (!originalData) {
-          throw new Error('Failed to fetch episode data');
-        }
-
-        // Set the show data
-        setShow({
-          title: originalData.title || 'Unknown Title',
-          animeId: originalData.animeId || '',
-          releaseTime: originalData.releaseTime || '',
-          description:
-            animeDetails?.synopsis?.join('\n\n') || 'No description available',
-          info: originalData.info || {},
-          watchServer: processServerData(originalData.server),
-          downloadUrl: originalData.downloadUrl || {},
-          defaultStreamingUrl: originalData.defaultStreamingUrl || '',
-        });
-
-        // Process episodes info
-        const processedEpisodes = episodesInfo.map((episode, index) => ({
-          id: episode.episodeId,
-          title: episode.title || `Episode ${index + 1}`,
-          duration: episode.duration || '24 min',
-          releaseDate: episode.releaseTime || 'Unknown',
-          thumbnailUrl:
-            animeDetails?.poster || '/placeholder.svg?height=300&width=200',
-          episodeId: episode.episodeId,
-        }));
-
-        setEpisodes(processedEpisodes);
-
-        // Set current episode
-        const currentEpisodeData =
-          processedEpisodes.find((ep) => ep.episodeId === episodeId) ||
-          processedEpisodes[0];
-        setCurrentEpisode(currentEpisodeData);
-
-        // Jika ada defaultStreamingUrl, langsung set sebagai videoUrl
-        if (originalData.defaultStreamingUrl) {
-          // console.log(
-          //   '[STREAMING] Memuat URL streaming default:',
-          //   originalData.defaultStreamingUrl
-          // );
-          // Tambahkan timeout kecil untuk memastikan komponen siap
-          setTimeout(() => {
-            setVideoUrl(originalData.defaultStreamingUrl);
-          }, 100);
-        }
-
-        // Set available qualities from server data
-        if (originalData.server && originalData.server.qualities) {
-          setAvailableQualities(originalData.server.qualities);
-
-          const initialQuality = originalData.server.qualities.find(
-            (q) => q.serverList && q.serverList.length > 0
-          );
-          if (initialQuality) {
-            setSelectedQuality(initialQuality.title);
-            if (
-              initialQuality.serverList &&
-              initialQuality.serverList.length > 0
-            ) {
-              setSelectedServer(initialQuality.serverList[0]);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id, episodeId]);
-
-  // Helper function to process server data
-  const processServerData = (serverData) => {
-    if (!serverData || !serverData.qualities) return [];
-
-    return serverData.qualities.map((quality) => ({
-      title: quality.title,
-      serverList: quality.serverList || [],
-    }));
-  };
-
-  // Handle quality change
-  const handleQualityChange = (quality) => {
-    setSelectedQuality(quality);
-    const qualityData = show.watchServer.find((q) => q.title === quality);
-    if (
-      qualityData &&
-      qualityData.serverList &&
-      qualityData.serverList.length > 0
-    ) {
-      setSelectedServer(qualityData.serverList[0]);
-      // In a real implementation, you'd load the video here
-      // loadVideo(qualityData.serverList[0].serverId);
-    }
-  };
-
-  // Handle server change
-  const handleServerChange = (server) => {
-    setSelectedServer(server);
-    // In a real implementation, you'd load the video here
-    // loadVideo(server.serverId);
-  };
-
-  // Function to get the best quality server (for play button)
+  // Function to get the best available quality
   const getBestQuality = (watchServer) => {
-    if (!watchServer || watchServer.length === 0) return null;
+    // Order of preference: 1080p, 720p, 480p, 360p
+    const qualityOrder = ['1080p', '720p', '480p', '360p'];
 
-    // Try to find 720p quality first
-    const hd = watchServer.find((q) => q.title === '720p');
-    if (hd && hd.serverList && hd.serverList.length > 0) {
-      return { quality: hd.title, server: hd.serverList[0] };
+    for (const quality of qualityOrder) {
+      const qualityItem = watchServer.find((q) => q.title === quality);
+      if (
+        qualityItem &&
+        qualityItem.serverList &&
+        qualityItem.serverList.length > 0
+      ) {
+        return {
+          quality: quality,
+          server: qualityItem.serverList[0],
+        };
+      }
     }
 
-    // Otherwise find any quality with servers
-    for (const quality of watchServer) {
-      if (quality.serverList && quality.serverList.length > 0) {
-        return { quality: quality.title, server: quality.serverList[0] };
+    // If no preferred quality is found, return the first one that has servers
+    for (const item of watchServer) {
+      if (item.serverList && item.serverList.length > 0) {
+        return {
+          quality: item.title,
+          server: item.serverList[0],
+        };
       }
     }
 
     return null;
   };
 
-  // This function would load the video in a real implementation
-
+  // Function to load video from selected server
   const loadVideo = async (serverId) => {
     if (!serverId) return;
 
     try {
-      // console.log(
-      //   '[STREAMING] Starting to load video for server ID:',
-      //   serverId
-      // );
       setVideoLoading(true);
-
-      const streamData = await fetchStreamAnime(serverId);
-      // console.log('[STREAMING] Received streaming data:', streamData);
-
+      const streamData = await fetchStreamMovie(serverId);
       if (streamData && streamData.url) {
-        // console.log('[STREAMING] Setting video URL:', streamData.url);
         setVideoUrl(streamData.url);
       } else {
-        console.error('[STREAMING] No valid streaming URL found in response');
+        console.error('No valid streaming URL found');
       }
     } catch (error) {
-      console.error('[STREAMING] Error loading video:', error);
+      console.error('Error loading video:', error);
     } finally {
-      // console.log('[STREAMING] Finished loading video');
       setVideoLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
+  // Prepare available qualities from watchServer
+  useEffect(() => {
+    if (show.watchServer && show.watchServer.length > 0) {
+      // Filter out qualities that have servers
+      const qualities = show.watchServer.filter(
+        (q) => q.serverList && q.serverList.length > 0
+      );
+      setAvailableQualities(qualities);
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="text-white text-center">
-          <h2 className="text-xl mb-2">Error Loading Content</h2>
-          <p>{error}</p>
-          <button
-            className="mt-4 bg-primary text-white px-4 py-2 rounded"
-            onClick={() => navigate('/')}
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
+      // Auto-select the best quality
+      const bestQuality = getBestQuality(show.watchServer);
+      if (bestQuality) {
+        setSelectedQuality(bestQuality.quality);
+        setSelectedServer(bestQuality.server);
+        loadVideo(bestQuality.server.serverId);
+      }
+    }
+  }, [show.watchServer]);
+
+  // Handle quality change
+  const handleQualityChange = (quality) => {
+    const qualityItem = show.watchServer.find((q) => q.title === quality);
+    if (
+      qualityItem &&
+      qualityItem.serverList &&
+      qualityItem.serverList.length > 0
+    ) {
+      setSelectedQuality(quality);
+      setSelectedServer(qualityItem.serverList[0]);
+      loadVideo(qualityItem.serverList[0].serverId);
+    }
+  };
+
+  // Handle server change
+  const handleServerChange = (server) => {
+    setSelectedServer(server);
+    loadVideo(server.serverId);
+  };
+
+  useEffect(() => {
+    const loadAnimeEpisodes = async () => {
+      try {
+        setLoading(true);
+        // Get data from API
+        const id = getEpisodeIdFromUrl();
+        const animeData = await fetchEpisodeMovie(id);
+        // console.log('animeData', animeData);
+
+        if (animeData) {
+          // Make sure description is a string, not an object
+          const description = Array.isArray(animeData.synopsis?.paragraphs)
+            ? animeData.synopsis.paragraphs.join('\n')
+            : animeData.synopsis?.paragraphs || '';
+
+          setShow({
+            title: animeData.title || 'Unknown Title',
+            id: animeData.animeId || '',
+            description: description,
+            posterUrl: animeData.poster || '',
+            genres: Array.isArray(animeData.genreList)
+              ? animeData.genreList
+              : [],
+            watchServer: Array.isArray(animeData.server.qualities)
+              ? animeData.server.qualities
+              : [],
+            downloadServer: Array.isArray(animeData.downloadUrl.formats)
+              ? animeData.downloadUrl.formats
+              : [],
+            releasedOn: animeData.releasedOn || 'Unknown Studios',
+            defaultStreamingUrl:
+              animeData.defaultStreamingUrl || 'Unknown Producers',
+          });
+          // console.log('downloadServer', show.downloadServer);
+
+          // Set episodes from recommendedEpisodeList
+          console.log(
+            'animeData.recommendedEpisodeList',
+            animeData.recommendedEpisodeList
+          );
+
+          if (
+            animeData.recommendedEpisodeList &&
+            Array.isArray(animeData.recommendedEpisodeList)
+          ) {
+            setEpisodes(
+              animeData.recommendedEpisodeList.map((episode) => {
+                // Extract just the episode ID from the href path
+                const episodeIdFromHref = episode.href.split('/').pop();
+
+                return {
+                  id: episode.episodeId,
+                  title: episode.title,
+                  thumbnailUrl: episode.poster,
+                  releaseDate: episode.releaseDate,
+                  episodeId: episodeIdFromHref, // Use the extracted ID here
+                  duration: '24 min', // Default duration since it's not in the data
+                };
+              })
+            );
+
+            // Set first episode as current episode
+            if (animeData.recommendedEpisodeList.length > 0) {
+              const firstEpisodeIdFromHref =
+                animeData.recommendedEpisodeList[0].href.split('/').pop();
+
+              setCurrentEpisode({
+                id: animeData.recommendedEpisodeList[0].episodeId,
+                title: animeData.recommendedEpisodeList[0].title,
+                thumbnailUrl: animeData.recommendedEpisodeList[0].poster,
+                releaseDate: animeData.recommendedEpisodeList[0].releaseDate,
+                episodeId: firstEpisodeIdFromHref, // Use the extracted ID here too
+                duration: '24 min',
+              });
+            }
+          }
+
+          // Set related shows from movie.animeList
+          if (
+            animeData.movie &&
+            animeData.movie.animeList &&
+            Array.isArray(animeData.movie.animeList)
+          ) {
+            // Filter out entries with empty titles
+            const validShows = animeData.movie.animeList.filter(
+              (show) => show.title
+            );
+            setRelatedShows(
+              validShows.map((show) => ({
+                id: show.animeId,
+                title: show.title,
+                posterUrl: show.poster,
+                score: show.score,
+                href: show.href,
+                status: show.status,
+                type: show.type,
+                isNew: false,
+                isVip: false,
+                genres: show.genreList.map((genre) => ({
+                  title: genre.title, // Nama genre
+                  genreId: genre.genreId, // ID genre untuk link
+                })),
+              }))
+            );
+          } else {
+            setRelatedShows([]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAnimeEpisodes();
+  }, [id]);
+
+  if (loading) {
+    return <WatchPageSkeleton />;
   }
 
   return (
@@ -239,38 +263,48 @@ function WatchPage() {
         {/* Video Player */}
         <div className="lg:w-3/4">
           <div className="relative aspect-video bg-black">
-            {videoUrl ? (
-              <VideoPlayer
+            {videoLoading ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black">
+                <div className="h-12 w-12 animate-spin border-4 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            ) : videoUrl ? (
+              <VideoMoviePlayer
                 src={videoUrl}
                 title={currentEpisode?.title || show.title}
-                poster={currentEpisode?.thumbnailUrl || '/placeholder.svg'}
               />
             ) : (
-              // Fallback UI ketika videoUrl belum ada
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button
-                  onClick={() => {
-                    if (show.defaultStreamingUrl) {
-                      setVideoUrl(show.defaultStreamingUrl);
-                    } else {
+              <>
+                <img
+                  src={
+                    currentEpisode?.thumbnailUrl ||
+                    '/placeholder.svg?height=720&width=1280'
+                  }
+                  alt={currentEpisode?.title || show.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <button
+                    className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition-colors"
+                    onClick={() => {
                       const bestQuality = getBestQuality(show.watchServer);
                       if (bestQuality) {
+                        setSelectedQuality(bestQuality.quality);
+                        setSelectedServer(bestQuality.server);
                         loadVideo(bestQuality.server.serverId);
                       }
-                    }
-                  }}
-                  className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition"
-                >
-                  <svg
-                    className="h-12 w-12 fill-white"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+                    }}
                   >
-                    <path d="M5 3L19 12L5 21V3Z" fill="currentColor" />
-                  </svg>
-                </button>
-              </div>
+                    <svg
+                      className="h-12 w-12 fill-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M5 3L19 12L5 21V3Z" fill="currentColor" />
+                    </svg>
+                  </button>
+                </div>
+              </>
             )}
           </div>
 
@@ -298,13 +332,10 @@ function WatchPage() {
                   <span className="text-gray-400">Server:</span>
                   {show.watchServer
                     .find((q) => q.title === selectedQuality)
-                    ?.serverList.map((server, idx) => (
+                    ?.serverList.map((server) => (
                       <button
-                        key={server.serverId || idx}
-                        onClick={() => {
-                          // console.log(`Selected Server ID: ${server.serverId}`);
-                          handleServerChange(server);
-                        }}
+                        key={server.serverId}
+                        onClick={() => handleServerChange(server)}
                         className={`px-3 py-1 text-sm rounded ${
                           selectedServer &&
                           selectedServer.serverId === server.serverId
@@ -312,7 +343,7 @@ function WatchPage() {
                             : 'bg-gray-800 hover:bg-gray-700'
                         }`}
                       >
-                        {server.title || `Server ${idx + 1}`}
+                        {server.title}
                       </button>
                     ))}
                 </div>
@@ -326,28 +357,25 @@ function WatchPage() {
               <div className="flex-1">
                 <h1 className="text-xl font-bold">{show.title}</h1>
                 <div className="flex items-center gap-2 mt-1">
-                  {show.info &&
-                    show.info.genreList &&
-                    show.info.genreList.map((genre, index) => (
-                      <Link
-                        key={index}
-                        to={`/category/${genre.genreId || '#'}`}
-                        className="text-sm bg-gray-800 px-2 py-0.5 rounded hover:bg-gray-600 transition"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {genre.title}
-                      </Link>
-                    ))}
+                  {show.genres.map((genre, index) => (
+                    <Link
+                      key={index}
+                      to={`/category/${genre.genreId || '#'}`}
+                      className="text-sm bg-gray-800 px-2 py-0.5 rounded hover:bg-gray-600 transition"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {genre.title}
+                    </Link>
+                  ))}
                 </div>
                 <div className="mt-4">
                   <h2 className="text-lg font-bold">Synopsis</h2>
                   <p
                     className={`text-sm text-gray-400 mt-1 ${
-                      isExpanded ? '' : 'line-clamp-2'
+                      isExpanded ? '' : 'line-clamp-5'
                     }`}
                   >
-                    {show.description ||
-                      'No synopsis available for this anime.'}
+                    {show.description}
                   </p>
                   <button
                     onClick={toggleDescription}
@@ -373,78 +401,66 @@ function WatchPage() {
                 </button>
                 <button
                   className={`px-4 py-2 text-sm font-medium ${
-                    activeSection === 'detailinfo'
+                    activeSection === 'recommended'
                       ? 'text-white border-b-2 border-primary'
                       : 'text-gray-400'
                   }`}
-                  onClick={() => setActiveSection('detailinfo')}
+                  onClick={() => setActiveSection('recommended')}
                 >
-                  Detail Info
+                  Direkomendasikan untukmu
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium ${
+                    activeSection === 'details'
+                      ? 'text-white border-b-2 border-primary'
+                      : 'text-gray-400'
+                  }`}
+                  onClick={() => setActiveSection('details')}
+                >
+                  Details
                 </button>
               </div>
 
-              {activeSection === 'detailinfo' && (
+              {activeSection === 'details' && (
                 <div className="py-4">
                   <div className="space-y-4">
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-xl font-semibold mb-2">Title</h3>
+                        <h3 className="text-xl font-semibold mb-2">
+                          English Title
+                        </h3>
                         <p className="text-xl text-gray-300">{show.title}</p>
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold mb-2">Credit</h3>
+                        <h3 className="text-xl font-semibold mb-2">Synopsis</h3>
+                        <p className="text-gray-300">{show.description}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">Producer</h3>
                         <p className="text-gray-300">
-                          {show.info?.credit || 'Unknown'}
+                          {show.defaultStreamingUrl}
                         </p>
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold mb-2">Encoder</h3>
-                        <p className="text-gray-300">
-                          {show.info?.encoder || 'Unknown'}
-                        </p>
+                        <h3 className="text-xl font-semibold mb-2">Studios</h3>
+                        <p className="text-gray-300">{show.releasedOn}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
+                          <h3 className="font-semibold">Release Year</h3>
+                          <p className="text-gray-300">2023</p>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Rating</h3>
+                          <p className="text-gray-300">3.3</p>
+                        </div>
+                        <div>
                           <h3 className="font-semibold">Duration</h3>
-                          <p className="text-gray-300">
-                            {show.info?.duration || 'Unknown'}
-                          </p>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Type</h3>
-                          <p className="text-gray-300">
-                            {show.info?.type || 'Unknown'}
-                          </p>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Release</h3>
-                          <p className="text-gray-300">
-                            {show.releaseTime || 'Unknown'}
-                          </p>
+                          <p className="text-gray-300">24 min</p>
                         </div>
                         <div>
                           <h3 className="font-semibold">Status</h3>
-                          <p className="text-gray-300">
-                            {show.title.includes('End')
-                              ? 'Completed'
-                              : 'Ongoing'}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold mb-2">Genres</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {show.info &&
-                            show.info.genreList &&
-                            show.info.genreList.map((genre, index) => (
-                              <Link
-                                key={index}
-                                to={`/category/${genre.genreId || '#'}`}
-                                className="text-sm bg-gray-800 px-2 py-1 rounded hover:bg-gray-700 transition"
-                              >
-                                {genre.title}
-                              </Link>
-                            ))}
+                          <p className="text-gray-300">On Going</p>
                         </div>
                       </div>
                     </div>
@@ -452,45 +468,58 @@ function WatchPage() {
                 </div>
               )}
 
+              {activeSection === 'recommended' && (
+                <div
+                  className="flex overflow-x-scroll space-x-3 w-full pb-5"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {relatedShows.map((show) => (
+                    <div
+                      key={show.id}
+                      className="flex-shrink-0 w-[150px] md:w-[190px]"
+                    >
+                      <ShowMovieCard show={show} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {activeSection === 'download' && (
                 <div className="py-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Download</h3>
-                    <div className="space-y-3">
-                      {show.downloadUrl &&
-                        show.downloadUrl.qualities &&
-                        show.downloadUrl.qualities.map((quality, qIndex) => (
-                          <div
-                            key={quality.title || qIndex}
-                            className="bg-gray-900 p-3 rounded-md mb-3"
-                          >
-                            <h4 className="font-medium mb-2">
-                              {quality.title}{' '}
-                              {quality.size && `(${quality.size})`}
-                            </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                              {quality.urls && quality.urls.length > 0 ? (
-                                quality.urls.map((urlItem, uIndex) => (
-                                  <a
-                                    key={uIndex}
-                                    href={urlItem.url || '#'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-gray-800 hover:bg-gray-700 text-center py-2 rounded-md text-sm transition-colors"
-                                  >
-                                    {urlItem.title || `Link ${uIndex + 1}`}
-                                  </a>
-                                ))
-                              ) : (
-                                <div className="text-gray-500 col-span-2">
-                                  Tidak ada link tersedia
-                                </div>
-                              )}
+                  {show.downloadServer.map((server, serverIndex) => (
+                    <div key={`server-${serverIndex}`} className="mb-6">
+                      <h3 className="text-sm md:text-lg font-semibold mb-3">
+                        {server.title}
+                      </h3>
+                      <div className="space-y-3">
+                        {server.qualities &&
+                          server.qualities.map((quality, qualityIndex) => (
+                            <div
+                              key={`quality-${serverIndex}-${qualityIndex}`}
+                              className="bg-gray-900 p-3 rounded-md"
+                            >
+                              <h4 className="font-medium text-sm mb-2">
+                                {quality.title}
+                              </h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                {quality.urls &&
+                                  quality.urls.map((urlItem, urlIndex) => (
+                                    <a
+                                      key={`url-${serverIndex}-${qualityIndex}-${urlIndex}`}
+                                      href={urlItem.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="bg-gray-800 hover:bg-gray-700 text-center py-2 rounded-md text-sm transition-colors"
+                                    >
+                                      {urlItem.title}
+                                    </a>
+                                  ))}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -505,7 +534,7 @@ function WatchPage() {
           <div className="overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar">
             {episodes.map((episode, index) => (
               <Link
-                to={`/watch/${show.animeId}?ep=${episode.episodeId}`}
+                to={`/watch/${show.id}?ep=${episode.episodeId}`}
                 key={episode.id || index}
                 className={`p-3 border-b border-gray-800 flex gap-3 cursor-pointer ${
                   currentEpisode && currentEpisode.id === episode.id

@@ -18,6 +18,7 @@ function DetailsPage() {
   const [show, setShow] = useState({
     title: '',
     english: '',
+    japanese: '',
     description: '',
     posterUrl: '',
     backdropUrl: '',
@@ -62,6 +63,19 @@ function DetailsPage() {
           moreThanTwenty,
         } = await fetchDetailAnime(id);
 
+        // Extract title from URL/ID if needed
+        const extractTitleFromUrl = (url) => {
+          // Get the last part of the URL after the last slash
+          const urlParts = url.split('/');
+          const lastPart = urlParts[urlParts.length - 1];
+
+          // Replace hyphens with spaces and capitalize each word
+          return lastPart
+            .split('-')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        };
+
         // Set the moreThanTwenty flag from the API response
         setMoreThanTwenty(moreThanTwenty);
 
@@ -75,8 +89,9 @@ function DetailsPage() {
             : animeData.synopsis.paragraphs || '';
 
           setShow({
-            title: animeData.title || 'Unknown Title',
+            title: animeData.title || extractTitleFromUrl(id), // Use extracted title from URL if anime title is not available
             english: animeData.english || '',
+            japanese: animeData.japanese || '',
             description: description,
             posterUrl: animeData.poster || '',
             backdropUrl: animeData.backdropImage || animeData.posterImage || '',
@@ -99,6 +114,12 @@ function DetailsPage() {
             // Placeholder related shows if not available
             setRelatedShows([]);
           }
+        } else {
+          // If no animeData is available, use the URL ID to set the title
+          setShow((prev) => ({
+            ...prev,
+            title: extractTitleFromUrl(id),
+          }));
         }
 
         if (
@@ -390,7 +411,7 @@ function DetailsPage() {
               </button>
             )}
 
-            <button
+            {/* <button
               className={`pb-3 px-1 text-sm font-medium ${
                 activeTab === 'related'
                   ? 'text-white border-b-2 border-primary'
@@ -399,7 +420,7 @@ function DetailsPage() {
               onClick={() => setActiveTab('related')}
             >
               More Like This
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -597,6 +618,12 @@ function DetailsPage() {
                 <h3 className="text-xl font-semibold mb-2">English Title</h3>
                 <p className="text-xl text-gray-300">
                   {renderContent(show.english)}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Japanese Title</h3>
+                <p className="text-xl text-gray-300">
+                  {renderContent(show.japanese)}
                 </p>
               </div>
               <div>

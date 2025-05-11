@@ -756,7 +756,7 @@ export async function fetchDetailAnime(id) {
           const result = {
             episodeId: episode.episodeId,
             title: episodeData.data?.title || 'Unknown',
-            releaseTime: episodeData.data?.releaseTime || 'Unknown',
+            releaseTime: episodeData.data?.releasedOn || 'Unknown',
             duration: episodeData.data?.info?.duration || 'Unknown',
             genreList: episodeData.data?.info?.genreList || [],
           };
