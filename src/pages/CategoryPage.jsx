@@ -9,8 +9,8 @@ import CategoryPageSkeletonLoader from '../components/loader/CategoryPageSkeleto
 // Moved to a separate file or could be kept here
 export async function fetchGenres() {
   try {
-    // Ambil anime dari genre awal (action) untuk sampling genre
-    const { animeList } = await fetchAnimebyCategory(genreId, 1);
+    // Use a common genre like "action" to sample genres
+    const { animeList } = await fetchAnimebyCategory('action', 1);
 
     // Extract all unique genres
     const genresMap = new Map();

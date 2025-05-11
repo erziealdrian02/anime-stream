@@ -202,12 +202,12 @@ function Footer() {
             </Link>{' '}
             and{' '}
             <Link
-              href="https://otakudesu.cloud"
+              href="https://samehadaku.cloud"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline"
             >
-              Otakudesu
+              samehadaku
             </Link>
             , and layout inspired by{' '}
             <Link

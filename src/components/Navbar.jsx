@@ -32,7 +32,7 @@ function Navbar() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://ponflix-api.vercel.app/otakudesu/search?q=${query}`
+        `http://wenime-api.vercel.app/samehadaku/search?q=${query}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

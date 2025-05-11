@@ -159,23 +159,6 @@ function OngoingPage() {
 
   return (
     <div className="min-h-screen bg-black pt-16">
-      {/* Secondary Navigation */}
-      <div className="bg-black/90 border-b border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-6 text-sm overflow-x-auto py-3">
-            <Link to="/" className="text-white whitespace-nowrap">
-              Untukmu
-            </Link>
-            <Link
-              to="/semua-konten"
-              className="text-gray-400 hover:text-white whitespace-nowrap"
-            >
-              Semua konten
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Featured Carousel */}
       <div className="relative">
         <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">

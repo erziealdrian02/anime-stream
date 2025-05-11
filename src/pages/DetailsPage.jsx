@@ -188,7 +188,7 @@ function DetailsPage() {
         episodes: { ...prev.episodes, [episodeId]: true },
       }));
       const response = await fetch(
-        `http://ponflix-api.vercel.app/samehadaku/episode/${episodeId}`
+        `http://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
       );
       const data = await response.json();
 

@@ -464,12 +464,28 @@ export async function fetchOngoingAnime() {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
             poster: anime.poster,
             href: anime.href,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Unknown',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -531,12 +547,28 @@ export async function fetchCompleteAnime() {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
             poster: anime.poster,
             href: anime.href,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Unknown',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -565,7 +597,7 @@ export async function fetchCompleteAnime() {
 export async function fetchGenresWithPosters() {
   try {
     const response = await fetch(
-      'https://wenime-api.vercel.app/otakudesu/genres'
+      'https://wenime-api.vercel.app/samehadaku/genres'
     );
     const data = await response.json();
 
@@ -581,7 +613,7 @@ export async function fetchGenresWithPosters() {
       genreList.map(async (genre) => {
         try {
           const genreResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/genres/${genre.genreId}`
+            `https://wenime-api.vercel.app/samehadaku/genres/${genre.genreId}`
           );
           const genreData = await genreResponse.json();
 
@@ -659,7 +691,7 @@ export async function fetchDetailAnime(id) {
   try {
     // First API call to get the main episode data
     const response = await fetch(
-      `https://wenime-api.vercel.app/otakudesu/anime/${id}`
+      `https://wenime-api.vercel.app/samehadaku/anime/${id}`
     );
     const result = await response.json();
     // console.log('result dari lib', result);
@@ -691,7 +723,7 @@ export async function fetchDetailAnime(id) {
     if (batchId) {
       try {
         const animeResponse = await fetch(
-          `https://wenime-api.vercel.app/otakudesu/batch/${batchId}`
+          `https://wenime-api.vercel.app/samehadaku/batch/${batchId}`
         );
         const batchData = await animeResponse.json();
 
@@ -711,7 +743,7 @@ export async function fetchDetailAnime(id) {
       episodeList.map(async (episode) => {
         try {
           const episodeResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/episode/${episode.episodeId}`
+            `https://wenime-api.vercel.app/samehadaku/episode/${episode.episodeId}`
           );
 
           if (!episodeResponse.ok) {
@@ -831,7 +863,7 @@ export async function fetchEpisodeAnime(episodeId) {
   try {
     // First API call to get the main episode data
     const response = await fetch(
-      `https://wenime-api.vercel.app/otakudesu/episode/${episodeId}`
+      `https://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
     );
     const data = await response.json();
     // console.log('data dari lib', data);
@@ -855,7 +887,7 @@ export async function fetchEpisodeAnime(episodeId) {
     if (animeId) {
       try {
         const animeResponse = await fetch(
-          `https://wenime-api.vercel.app/otakudesu/anime/${animeId}`
+          `https://wenime-api.vercel.app/samehadaku/anime/${animeId}`
         );
         const animeData = await animeResponse.json();
 
@@ -879,7 +911,7 @@ export async function fetchEpisodeAnime(episodeId) {
       episodeList.map(async (episode) => {
         try {
           const episodeResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/episode/${episode.episodeId}`
+            `https://wenime-api.vercel.app/samehadaku/episode/${episode.episodeId}`
           );
 
           if (!episodeResponse.ok) {
@@ -951,7 +983,7 @@ export async function fetchEpisodeMovie(episodeId) {
 export async function fetchStreamAnime(serverId) {
   try {
     const response = await fetch(
-      `https://wenime-api.vercel.app/otakudesu/server/${serverId}`,
+      `https://wenime-api.vercel.app/samehadaku/server/${serverId}`,
       {
         headers: {
           Accept: 'application/json',
@@ -1024,7 +1056,7 @@ export async function fetchAllOngoingAnime() {
   try {
     // Ambil halaman pertama untuk mendapatkan informasi total pages
     const firstResponse = await fetch(
-      'https://wenime-api.vercel.app/otakudesu/ongoing'
+      'https://wenime-api.vercel.app/samehadaku/ongoing'
     );
     const firstData = await firstResponse.json();
 
@@ -1044,7 +1076,7 @@ export async function fetchAllOngoingAnime() {
     const pagePromises = [];
     for (let page = 2; page <= totalPages; page++) {
       pagePromises.push(
-        fetch(`https://wenime-api.vercel.app/otakudesu/ongoing?page=${page}`)
+        fetch(`https://wenime-api.vercel.app/samehadaku/ongoing?page=${page}`)
           .then((res) => res.json())
           .then((data) => data?.data?.animeList || [])
       );
@@ -1065,7 +1097,7 @@ export async function fetchAllOngoingAnime() {
       allAnimeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1076,6 +1108,22 @@ export async function fetchAllOngoingAnime() {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
@@ -1084,7 +1132,7 @@ export async function fetchAllOngoingAnime() {
             episodes: anime.episodes,
             releaseDay: anime.releaseDay,
             latestReleaseDate: anime.latestReleaseDate,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Ongoing',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -1127,7 +1175,7 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
   try {
     // Ambil halaman pertama untuk mendapatkan informasi total pages
     const firstResponse = await fetch(
-      'https://wenime-api.vercel.app/otakudesu/completed'
+      'https://wenime-api.vercel.app/samehadaku/completed'
     );
     const firstData = await firstResponse.json();
 
@@ -1149,7 +1197,7 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
     const pagePromises = [];
     for (let page = 2; page <= actualPageLimit; page++) {
       pagePromises.push(
-        fetch(`https://wenime-api.vercel.app/otakudesu/completed?page=${page}`)
+        fetch(`https://wenime-api.vercel.app/samehadaku/completed?page=${page}`)
           .then((res) => res.json())
           .then((data) => data?.data?.animeList || [])
       );
@@ -1170,7 +1218,7 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
       allAnimeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1181,6 +1229,22 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
@@ -1189,7 +1253,7 @@ export async function fetchAllCompleteAnime(pageLimit = 3) {
             episodes: anime.episodes,
             releaseDay: anime.releaseDay,
             latestReleaseDate: anime.latestReleaseDate,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Complete',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -1347,7 +1411,7 @@ export async function fetchMoreCompleteAnime(startPage, endPage) {
     const pagePromises = [];
     for (let page = startPage; page <= endPage; page++) {
       pagePromises.push(
-        fetch(`https://wenime-api.vercel.app/otakudesu/completed?page=${page}`)
+        fetch(`https://wenime-api.vercel.app/samehadaku/completed?page=${page}`)
           .then((res) => res.json())
           .then((data) => data?.data?.animeList || [])
       );
@@ -1369,7 +1433,7 @@ export async function fetchMoreCompleteAnime(startPage, endPage) {
       newAnimeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1379,6 +1443,22 @@ export async function fetchMoreCompleteAnime(startPage, endPage) {
           const details = await detailsResponse.json();
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
@@ -1387,7 +1467,7 @@ export async function fetchMoreCompleteAnime(startPage, endPage) {
             episodes: anime.episodes,
             releaseDay: anime.releaseDay,
             latestReleaseDate: anime.latestReleaseDate,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Complete',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -1428,7 +1508,7 @@ export async function fetchMoreCompleteAnime(startPage, endPage) {
 export async function fetchAllAnime() {
   try {
     const response = await fetch(
-      'https://wenime-api.vercel.app/otakudesu/anime'
+      'https://wenime-api.vercel.app/samehadaku/anime'
     );
     const data = await response.json();
     // console.log('Result dari lib:', data);
@@ -1448,7 +1528,7 @@ export async function fetchAllAnime() {
       animeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1461,12 +1541,28 @@ export async function fetchAllAnime() {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
             poster: anime.poster,
             href: anime.href,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Unknown',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -1496,7 +1592,7 @@ export async function fetchAllAnime() {
 export async function fetchScheduleAnime() {
   try {
     const response = await fetch(
-      'https://wenime-api.vercel.app/otakudesu/schedule'
+      'https://wenime-api.vercel.app/samehadaku/schedule'
     );
     const data = await response.json();
     // console.log('Result dari lib:', data);
@@ -1518,7 +1614,7 @@ export async function fetchScheduleAnime() {
         day.animeList.map(async (anime) => {
           try {
             const detailsResponse = await fetch(
-              `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+              `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
             );
 
             if (!detailsResponse.ok) {
@@ -1579,7 +1675,7 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
   try {
     // Ambil halaman pertama untuk mendapatkan informasi total pages
     const firstResponse = await fetch(
-      `https://wenime-api.vercel.app/otakudesu/genres/${genreId}`
+      `https://wenime-api.vercel.app/samehadaku/genres/${genreId}`
     );
     const firstData = await firstResponse.json();
 
@@ -1602,7 +1698,7 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
     for (let page = 2; page <= actualPageLimit; page++) {
       pagePromises.push(
         fetch(
-          `https://wenime-api.vercel.app/otakudesu/genres/${genreId}?page=${page}`
+          `https://wenime-api.vercel.app/samehadaku/genres/${genreId}?page=${page}`
         )
           .then((res) => res.json())
           .then((data) => data?.data?.animeList || [])
@@ -1624,7 +1720,7 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
       allAnimeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1635,6 +1731,22 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
           // Akses data melalui properti 'data' terlebih dahulu
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
@@ -1643,7 +1755,7 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
             episodes: anime.episodes,
             releaseDay: anime.releaseDay || null,
             latestReleaseDate: anime.latestReleaseDate || null,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Complete',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',
@@ -1674,6 +1786,7 @@ export async function fetchAnimebyCategory(genreId, pageLimit = 3) {
         }
       })
     );
+    console.log('detailedAnimeList dari lib', detailedAnimeList);
 
     return {
       animeList: detailedAnimeList.filter(Boolean),
@@ -1692,7 +1805,7 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
     for (let page = startPage; page <= endPage; page++) {
       pagePromises.push(
         fetch(
-          `https://wenime-api.vercel.app/otakudesu/genres/${genreId}?page=${page}`
+          `https://wenime-api.vercel.app/samehadaku/genres/${genreId}?page=${page}`
         )
           .then((res) => res.json())
           .then((data) => data?.data?.animeList || [])
@@ -1715,7 +1828,7 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
       newAnimeList.map(async (anime) => {
         try {
           const detailsResponse = await fetch(
-            `https://wenime-api.vercel.app/otakudesu/anime/${anime.animeId}`
+            `https://wenime-api.vercel.app/samehadaku/anime/${anime.animeId}`
           );
 
           if (!detailsResponse.ok) {
@@ -1725,6 +1838,22 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
           const details = await detailsResponse.json();
           const animeDetails = details.data;
 
+          // Fix untuk score - periksa struktur objek dan akses nilai yang benar
+          let scoreValue = 'N/A';
+          if (animeDetails?.score) {
+            // Jika score adalah objek dengan property value atau score
+            if (typeof animeDetails.score === 'object') {
+              scoreValue =
+                animeDetails.score.value ||
+                animeDetails.score.score ||
+                JSON.stringify(animeDetails.score);
+            }
+            // Jika score langsung berupa string atau number
+            else {
+              scoreValue = animeDetails.score.toString();
+            }
+          }
+
           return {
             animeId: anime.animeId,
             title: anime.title,
@@ -1733,7 +1862,7 @@ export async function fetchMoreAnimebyCategory(genreId, startPage, endPage) {
             episodes: anime.episodes,
             releaseDay: anime.releaseDay || null,
             latestReleaseDate: anime.latestReleaseDate || null,
-            score: animeDetails?.score ? animeDetails.score.toString() : 'N/A',
+            score: scoreValue,
             status: animeDetails?.status ?? 'Complete',
             japanese: animeDetails?.japanese ?? '',
             duration: animeDetails?.duration ?? '',

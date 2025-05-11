@@ -49,7 +49,9 @@ function AnimeListPage() {
       setError(null);
 
       try {
-        const response = await fetch('http://ponflix-api.vercel.app/otakudesu/anime');
+        const response = await fetch(
+          'http://wenime-api.vercel.app/samehadaku/anime'
+        );
         const result = await response.json();
 
         if (
