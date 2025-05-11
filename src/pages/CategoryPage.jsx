@@ -254,7 +254,7 @@ function CategoryPage() {
                         '/placeholder.svg?height=600&width=1200'
                       }
                       alt={`${show.title} background`}
-                      className="absolute inset-0 w-full h-full object-cover filter blur-sm brightness-50 scale-110"
+                      className="absolute inset-0 w-full h-full object-cover md:filter md:blur-sm md:brightness-50 md:scale-110 brightness-50"
                     />
                   </div>
 
