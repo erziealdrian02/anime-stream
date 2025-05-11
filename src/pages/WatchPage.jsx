@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link, href } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import ShowMovieCard from '../components/ShowMovieCard';
 import { fetchEpisodeMovie, fetchStreamMovie } from '../lib/api';
 import VideoMoviePlayer from '../components/VideoMoviePlayer';
@@ -40,6 +40,11 @@ function WatchPage() {
   const [selectedQuality, setSelectedQuality] = useState('');
   const [selectedServer, setSelectedServer] = useState('');
   const [availableQualities, setAvailableQualities] = useState([]);
+
+  // Track the current episode ID from URL
+  const [currentEpisodeId, setCurrentEpisodeId] = useState(
+    getEpisodeIdFromUrl()
+  );
 
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
@@ -135,14 +140,41 @@ function WatchPage() {
     loadVideo(server.serverId);
   };
 
+  // Listen for URL changes to detect when episode ID changes
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const newEpisodeId = getEpisodeIdFromUrl();
+      if (newEpisodeId !== currentEpisodeId) {
+        setCurrentEpisodeId(newEpisodeId);
+        setLoading(true);
+        // Reset video states when changing episodes
+        setVideoUrl('');
+        setSelectedQuality('');
+        setSelectedServer('');
+      }
+    };
+
+    // Listen for popstate events (back/forward navigation)
+    window.addEventListener('popstate', handleUrlChange);
+
+    // Check for URL changes on component mount
+    handleUrlChange();
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, [currentEpisodeId]);
+
+  // Main data loading effect - now depends on currentEpisodeId
   useEffect(() => {
     const loadAnimeEpisodes = async () => {
       try {
         setLoading(true);
-        // Get data from API
-        const id = getEpisodeIdFromUrl();
-        const animeData = await fetchEpisodeMovie(id);
-        // console.log('animeData', animeData);
+        // Get episode ID from URL
+        const episodeId = currentEpisodeId;
+        if (!episodeId) return;
+
+        const animeData = await fetchEpisodeMovie(episodeId);
 
         if (animeData) {
           // Make sure description is a string, not an object
@@ -168,14 +200,8 @@ function WatchPage() {
             defaultStreamingUrl:
               animeData.defaultStreamingUrl || 'Unknown Producers',
           });
-          // console.log('downloadServer', show.downloadServer);
 
           // Set episodes from recommendedEpisodeList
-          console.log(
-            'animeData.recommendedEpisodeList',
-            animeData.recommendedEpisodeList
-          );
-
           if (
             animeData.recommendedEpisodeList &&
             Array.isArray(animeData.recommendedEpisodeList)
@@ -196,8 +222,22 @@ function WatchPage() {
               })
             );
 
-            // Set first episode as current episode
-            if (animeData.recommendedEpisodeList.length > 0) {
+            // Find and set current episode based on episodeId
+            const currentEp = animeData.recommendedEpisodeList.find(
+              (ep) => ep.href.split('/').pop() === episodeId
+            );
+
+            if (currentEp) {
+              setCurrentEpisode({
+                id: currentEp.episodeId,
+                title: currentEp.title,
+                thumbnailUrl: currentEp.poster,
+                releaseDate: currentEp.releaseDate,
+                episodeId: episodeId,
+                duration: '24 min',
+              });
+            } else if (animeData.recommendedEpisodeList.length > 0) {
+              // Fallback to first episode if current not found
               const firstEpisodeIdFromHref =
                 animeData.recommendedEpisodeList[0].href.split('/').pop();
 
@@ -206,7 +246,7 @@ function WatchPage() {
                 title: animeData.recommendedEpisodeList[0].title,
                 thumbnailUrl: animeData.recommendedEpisodeList[0].poster,
                 releaseDate: animeData.recommendedEpisodeList[0].releaseDate,
-                episodeId: firstEpisodeIdFromHref, // Use the extracted ID here too
+                episodeId: firstEpisodeIdFromHref,
                 duration: '24 min',
               });
             }
@@ -234,8 +274,8 @@ function WatchPage() {
                 isNew: false,
                 isVip: false,
                 genres: show.genreList.map((genre) => ({
-                  title: genre.title, // Nama genre
-                  genreId: genre.genreId, // ID genre untuk link
+                  title: genre.title,
+                  genreId: genre.genreId,
                 })),
               }))
             );
@@ -251,7 +291,14 @@ function WatchPage() {
     };
 
     loadAnimeEpisodes();
-  }, [id]);
+  }, [currentEpisodeId]); // This dependency ensures the effect runs when episodeId changes
+
+  // Add custom click handler for episode links to avoid full page reloads
+  const handleEpisodeClick = (e, episodeId) => {
+    e.preventDefault();
+    navigate(`/watch/${show.id}?ep=${episodeId}`);
+    setCurrentEpisodeId(episodeId);
+  };
 
   if (loading) {
     return <WatchPageSkeleton />;
@@ -533,11 +580,13 @@ function WatchPage() {
           </div>
           <div className="overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar">
             {episodes.map((episode, index) => (
-              <Link
-                to={`/watch/${show.id}?ep=${episode.episodeId}`}
+              <a
+                href={`/watch/${show.id}?ep=${episode.episodeId}`}
+                onClick={(e) => handleEpisodeClick(e, episode.episodeId)}
                 key={episode.id || index}
                 className={`p-3 border-b border-gray-800 flex gap-3 cursor-pointer ${
-                  currentEpisode && currentEpisode.id === episode.id
+                  currentEpisode &&
+                  currentEpisode.episodeId === episode.episodeId
                     ? 'bg-gray-800'
                     : ''
                 }`}
@@ -568,7 +617,7 @@ function WatchPage() {
                     </span>
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         </div>

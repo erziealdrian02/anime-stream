@@ -515,7 +515,7 @@ export async function fetchOngoingAnime() {
 export async function fetchCompleteAnime() {
   try {
     const response = await fetch(
-      'https://wenime-api.vercel.app/samehadaku/completed'
+      'https://wenime-api.vercel.app/samehadaku/popular'
     );
     const data = await response.json();
     // console.log('Result dari lib:', data);
@@ -689,104 +689,155 @@ export async function fetchMovieAnime() {
 
 export async function fetchDetailAnime(id) {
   try {
-    // First API call to get the main episode data
     const response = await fetch(
       `https://wenime-api.vercel.app/samehadaku/anime/${id}`
     );
     const result = await response.json();
-    // console.log('result dari lib', result);
 
-    // Check if we have valid result
     if (!result.ok || !result.data) {
       return {
         animeData: null,
-        episodesInfo: [],
+        episodes: [],
         batchDetails: null,
+        moreThanTwenty: false,
+        groupedEpisodes: {},
       };
     }
 
     const animeData = result.data;
-    // console.log('animeData dari lib', animeData);
+    let episodeList = animeData.episodeList || [];
+    const moreThanTwenty = episodeList.length > 25;
 
-    // Get the episode list from the first API call
-    const episodeList = animeData.episodeList || [];
-    // console.log('episodeList dari lib', episodeList);
+    // Fix episode numbering and titles
+    episodeList = episodeList.map((episode, index) => {
+      // Extract the correct episode number from the episodeId if possible
+      const epNumFromId =
+        episode.episodeId.match(/-episode-(\d+)/)?.[1] ||
+        episode.episodeId.match(/-ep(\d+)/)?.[1] ||
+        (index + 1).toString();
 
+      // Use the most reliable source for episode number
+      const episodeNumber = episode.episodeNumber || epNumFromId;
+
+      // Fix title to match episode number if it's clearly wrong
+      let title = episode.title;
+      if (title && /^\d+$/.test(title) && title !== episodeNumber) {
+        title = episodeNumber;
+      } else if (!title) {
+        title = `Episode ${episodeNumber}`;
+      }
+
+      return {
+        ...episode,
+        episodeNumber,
+        title,
+        releaseTime: episode.releaseTime || 'Unknown',
+        duration: '24 min',
+        description: 'Episode description will be available when watching',
+        genreList: animeData.info?.genreList || [],
+      };
+    });
+
+    // Get batch download information if available
     const batchId =
-      animeData.batch && animeData.batch.batchId
-        ? animeData.batch.batchId
-        : null;
-    // console.log('batchId dari lib', batchId);
+      animeData.batchList?.[0]?.batchId ||
+      (animeData.batch && animeData.batch.batchId) ||
+      null;
 
-    // Fetch anime details using batchId
     let batchDetails = null;
     if (batchId) {
       try {
-        const animeResponse = await fetch(
+        const batchResponse = await fetch(
           `https://wenime-api.vercel.app/samehadaku/batch/${batchId}`
         );
-        const batchData = await animeResponse.json();
+        const batchData = await batchResponse.json();
 
         if (batchData.ok && batchData.data) {
-          // Extract only synopsis paragraphs and poster
           batchDetails = {
             downloadUrl: batchData.data?.downloadUrl?.formats || [],
           };
         }
       } catch (error) {
-        console.error('Error fetching anime details:', error);
+        console.error('Error fetching batch details:', error);
       }
     }
 
-    // Loop through each episode to fetch detailed information
-    const episodes = await Promise.all(
-      episodeList.map(async (episode) => {
-        try {
-          const episodeResponse = await fetch(
-            `https://wenime-api.vercel.app/samehadaku/episode/${episode.episodeId}`
-          );
+    if (moreThanTwenty) {
+      const groupedEpisodes = {};
+      const groupSize = 25;
 
-          if (!episodeResponse.ok) {
-            throw new Error(`Failed to fetch data for ${episode.episodeId}`);
-          }
+      for (let i = 0; i < episodeList.length; i++) {
+        const groupIndex = Math.floor(i / groupSize);
+        const startEp = episodeList[groupIndex * groupSize].episodeNumber;
+        const endEp =
+          episodeList[
+            Math.min((groupIndex + 1) * groupSize - 1, episodeList.length - 1)
+          ].episodeNumber;
+        const groupName = `Episode ${endEp}-${startEp}`;
 
-          const episodeData = await episodeResponse.json();
-
-          // Extract only the title and genreList
-          const result = {
-            episodeId: episode.episodeId,
-            title: episodeData.data?.title || 'Unknown',
-            releaseTime: episodeData.data?.releasedOn || 'Unknown',
-            duration: episodeData.data?.info?.duration || 'Unknown',
-            genreList: episodeData.data?.info?.genreList || [],
-          };
-          // console.log('result dari lib', result);
-
-          return result;
-        } catch (error) {
-          console.error(
-            `Error fetching data for episode ${episode.episodeId}:`,
-            error
-          );
-          return null;
+        if (!groupedEpisodes[groupName]) {
+          groupedEpisodes[groupName] = [];
         }
-      })
-    );
 
-    // console.log('animeData dari lib', animeData);
-    // console.log('episodes dari lib', episodes);
-    // console.log('batchDetails dari lib', batchDetails);
+        groupedEpisodes[groupName].push(episodeList[i]);
+      }
 
-    return {
-      animeData: animeData,
-      episodes: episodes.filter(Boolean),
-      batchDetails: batchDetails,
-    };
+      return {
+        animeData: animeData,
+        episodes: episodeList,
+        batchDetails: batchDetails,
+        moreThanTwenty: true,
+        groupedEpisodes: groupedEpisodes,
+      };
+    } else {
+      const episodes = await Promise.all(
+        episodeList.map(async (episode) => {
+          try {
+            const episodeResponse = await fetch(
+              `https://wenime-api.vercel.app/samehadaku/episode/${episode.episodeId}`
+            );
+
+            if (!episodeResponse.ok) {
+              throw new Error(`Failed to fetch data for ${episode.episodeId}`);
+            }
+
+            const episodeData = await episodeResponse.json();
+
+            return {
+              episodeId: episode.episodeId,
+              title:
+                episodeData.data?.title || `Episode ${episode.episodeNumber}`,
+              releaseTime: episodeData.data?.releasedOn || 'Unknown',
+              duration: episodeData.data?.info?.duration || 'Unknown',
+              genreList: episodeData.data?.info?.genreList || [],
+              episodeNumber: episode.episodeNumber, // Keep our corrected episode number
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching data for episode ${episode.episodeId}:`,
+              error
+            );
+            return null;
+          }
+        })
+      );
+
+      return {
+        animeData: animeData,
+        episodes: episodes.filter(Boolean),
+        batchDetails: batchDetails,
+        moreThanTwenty: false,
+        groupedEpisodes: {},
+      };
+    }
   } catch (error) {
-    console.error('Error fetching anime episode:', error);
+    console.error('Error fetching anime details:', error);
     return {
-      originalData: null,
+      animeData: null,
       episodes: [],
+      batchDetails: null,
+      moreThanTwenty: false,
+      groupedEpisodes: {},
     };
   }
 }
@@ -804,6 +855,7 @@ export async function fetchDetailMovie(id) {
     if (result.ok && result.data.episodeList) {
       const episodes = result.data.episodeList;
       const moreThanTwenty = episodes.length > 25; // Menentukan apakah lebih dari 50 episode
+      console.log('MorethanTwenty', moreThanTwenty);
 
       if (episodes.length > 25) {
         // Jika lebih dari 25, hanya ambil satu episode dari setiap kelompok 25 episode

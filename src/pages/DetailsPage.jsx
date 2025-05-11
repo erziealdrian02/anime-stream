@@ -1,3 +1,6 @@
+// The key issue is in how we handle the episodes display and grouping
+// Here's the updated DetailsPage.jsx with fixed episode grouping and display
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -41,11 +44,12 @@ function DetailsPage() {
   const [moreThanTwenty, setMoreThanTwenty] = useState(false);
   const [expandedEpisode, setExpandedEpisode] = useState(null);
   const [recommendedAnime, setRecommendedAnime] = useState({});
+
   const formatTitle = (title) => {
-    // Ganti '-' dengan spasi
+    // Replace '-' with spaces
     const titleWithSpaces = title.replace(/-/g, ' ');
 
-    // Ubah setiap kata menjadi kapital pada huruf pertamanya
+    // Capitalize first letter of each word
     return titleWithSpaces
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -61,7 +65,14 @@ function DetailsPage() {
           animeData,
           batchDetails,
           moreThanTwenty,
+          groupedEpisodes: fetchedGroupedEpisodes, // Get the grouped episodes from API
         } = await fetchDetailAnime(id);
+
+        // Set the moreThanTwenty flag from the API response
+        setMoreThanTwenty(moreThanTwenty);
+
+        // Set initial view mode based on moreThanTwenty flag
+        setEpisodeViewMode(moreThanTwenty ? 'dropdown' : 'list');
 
         // Extract title from URL/ID if needed
         const extractTitleFromUrl = (url) => {
@@ -76,20 +87,14 @@ function DetailsPage() {
             .join(' ');
         };
 
-        // Set the moreThanTwenty flag from the API response
-        setMoreThanTwenty(moreThanTwenty);
-
-        // Set initial view mode based on moreThanTwenty flag
-        setEpisodeViewMode(moreThanTwenty ? 'dropdown' : 'list');
-
         if (animeData) {
-          // Pastikan description adalah string, bukan objek
-          const description = Array.isArray(animeData.synopsis.paragraphs) // Memastikan bahwa paragraphs adalah array
-            ? animeData.synopsis.paragraphs.join('\n') // Gabungkan para paragraf dengan newline
+          // Make sure description is a string, not an object
+          const description = Array.isArray(animeData.synopsis.paragraphs)
+            ? animeData.synopsis.paragraphs.join('\n')
             : animeData.synopsis.paragraphs || '';
 
           setShow({
-            title: animeData.title || extractTitleFromUrl(id), // Use extracted title from URL if anime title is not available
+            title: animeData.title || extractTitleFromUrl(id),
             english: animeData.english || '',
             japanese: animeData.japanese || '',
             description: description,
@@ -104,7 +109,7 @@ function DetailsPage() {
             status: animeData.status || 'Unknown Status',
             downloadUrl: batchDetails?.downloadUrl || [],
             recommendedAnimeList:
-              animeData.recommendedAnimeList || 'Unknown Recomended',
+              animeData.recommendedAnimeList || 'Unknown Recommended',
           });
 
           // Set related shows if available
@@ -127,7 +132,7 @@ function DetailsPage() {
           Array.isArray(fetchedEpisodes) &&
           fetchedEpisodes.length > 0
         ) {
-          // Pastikan setiap episode punya properti description bertipe string
+          // Make sure each episode has a description property as a string
           const sanitizedEpisodes = fetchedEpisodes.map((episode) => ({
             ...episode,
             description:
@@ -140,18 +145,27 @@ function DetailsPage() {
                 episode.episodeNumber || episode.episodeId || 'Unknown'
               }`,
           }));
-          // console.log('fetchedEpisodes', fetchedEpisodes);
 
           setEpisodes(sanitizedEpisodes);
 
-          // Group episodes by season or other criteria
-          const grouped = groupEpisodes(sanitizedEpisodes);
-          setGroupedEpisodes(grouped);
+          // Important: Use the grouped episodes from API if available, otherwise group them locally
+          if (
+            fetchedGroupedEpisodes &&
+            Object.keys(fetchedGroupedEpisodes).length > 0
+          ) {
+            setGroupedEpisodes(fetchedGroupedEpisodes);
+          } else {
+            // Group episodes locally as a fallback
+            const grouped = groupEpisodes(sanitizedEpisodes);
+            setGroupedEpisodes(grouped);
+          }
 
-          // Expand the first season by default
-          const firstSeason = Object.keys(grouped)[0];
-          if (firstSeason) {
-            setExpandedSeason(firstSeason);
+          // Expand the first season/group by default
+          const firstGroup =
+            Object.keys(fetchedGroupedEpisodes)[0] ||
+            Object.keys(groupEpisodes(sanitizedEpisodes))[0];
+          if (firstGroup) {
+            setExpandedEpisode(firstGroup);
           }
         }
       } catch (err) {
@@ -165,7 +179,7 @@ function DetailsPage() {
     loadAnimeDetails();
   }, [id]);
 
-  // Function to group episodes by season or chunks if needed
+  // Group episodes by season or chunks - used as a fallback
   const groupEpisodes = (episodeList) => {
     if (!episodeList || episodeList.length === 0) return {};
 
@@ -185,7 +199,10 @@ function DetailsPage() {
     const groupSize = 25;
     return episodeList.reduce((groups, episode, index) => {
       const groupIndex = Math.floor(index / groupSize);
-      const groupName = `Season ${groupIndex + 1}`;
+      const startEp = groupIndex * groupSize + 1;
+      const endEp = Math.min((groupIndex + 1) * groupSize, episodeList.length);
+      const groupName = `Episode ${startEp}-${endEp}`;
+
       if (!groups[groupName]) {
         groups[groupName] = [];
       }
@@ -194,11 +211,13 @@ function DetailsPage() {
     }, {});
   };
 
-  const toggleSeason = (season) => {
-    if (expandedSeason === season) {
-      setExpandedSeason(null);
-    } else {
-      setExpandedSeason(season);
+  const toggleEpisode = (episodeId) => {
+    const newExpandedEpisode = expandedEpisode === episodeId ? null : episodeId;
+    setExpandedEpisode(newExpandedEpisode);
+
+    // Fetch data when opening if we don't have it yet
+    if (newExpandedEpisode && !recommendedAnime[episodeId]) {
+      fetchMoreAnime(episodeId);
     }
   };
 
@@ -209,7 +228,7 @@ function DetailsPage() {
         episodes: { ...prev.episodes, [episodeId]: true },
       }));
       const response = await fetch(
-        `http://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
+        `https://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
       );
       const data = await response.json();
 
@@ -229,16 +248,6 @@ function DetailsPage() {
     }
   };
 
-  const toggleEpisode = (episodeId) => {
-    const newExpandedEpisode = expandedEpisode === episodeId ? null : episodeId;
-    setExpandedEpisode(newExpandedEpisode);
-
-    // Fetch data when opening if we don't have it yet
-    if (newExpandedEpisode && !recommendedAnime[episodeId]) {
-      fetchMoreAnime(episodeId);
-    }
-  };
-
   const handleWatchNow = () => {
     // Navigate to the first episode if available
     if (episodes.length > 0) {
@@ -246,10 +255,10 @@ function DetailsPage() {
     }
   };
 
-  // Helper untuk menampilkan konten yang mungkin berupa objek
+  // Helper to display content that might be an object
   const renderContent = (content) => {
     if (typeof content === 'object' && content !== null) {
-      // Jika objek memiliki paragraphs (mungkin dari suatu struktur API)
+      // If object has paragraphs (possibly from API structure)
       if (Array.isArray(content.paragraphs)) {
         return content.paragraphs.join('\n');
       }
@@ -396,8 +405,6 @@ function DetailsPage() {
             >
               Details
             </button>
-            {/* {console.log('show.downloadUrl', show.downloadUrl)} */}
-
             {show.downloadUrl && show.downloadUrl.length > 0 && (
               <button
                 className={`pb-3 px-1 text-sm font-medium ${
@@ -410,17 +417,6 @@ function DetailsPage() {
                 Download Batch
               </button>
             )}
-
-            {/* <button
-              className={`pb-3 px-1 text-sm font-medium ${
-                activeTab === 'related'
-                  ? 'text-white border-b-2 border-primary'
-                  : 'text-gray-400'
-              }`}
-              onClick={() => setActiveTab('related')}
-            >
-              More Like This
-            </button> */}
           </div>
         </div>
 
@@ -428,10 +424,37 @@ function DetailsPage() {
         <div className="mt-6">
           {activeTab === 'episodes' && (
             <div>
-              {/* List View */}
+              {/* View Mode Toggle */}
+              {/* {moreThanTwenty && (
+                <div className="mb-4 flex justify-end">
+                  <div className="bg-gray-900 p-1 rounded-md inline-flex">
+                    <button
+                      onClick={() => setEpisodeViewMode('dropdown')}
+                      className={`px-3 py-1 text-sm rounded-md ${
+                        episodeViewMode === 'dropdown'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-300'
+                      }`}
+                    >
+                      Grouped
+                    </button>
+                    <button
+                      onClick={() => setEpisodeViewMode('list')}
+                      className={`px-3 py-1 text-sm rounded-md ${
+                        episodeViewMode === 'list'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-300'
+                      }`}
+                    >
+                      List All
+                    </button>
+                  </div>
+                </div>
+              )} */}
+
+              {/* List View - Single episodes */}
               {(!moreThanTwenty || episodeViewMode === 'list') && (
                 <div className="space-y-4">
-                  {/* {console.log('Ini Episodessssssss', episodes)} */}
                   {episodes.map((episode, index) => (
                     <div
                       key={`episode-list-${episode.episodeId || index}`}
@@ -441,7 +464,6 @@ function DetailsPage() {
                       }
                     >
                       <div className="relative w-40 aspect-video flex-shrink-0">
-                        {/* <h1>${episode.episodeId}</h1> */}
                         <img
                           src={
                             show.posterUrl ||
@@ -467,146 +489,91 @@ function DetailsPage() {
                 </div>
               )}
 
-              {/* Dropdown View - Only shown if moreThanTwenty is true */}
+              {/* Dropdown View - Grouped episodes */}
               {moreThanTwenty && episodeViewMode === 'dropdown' && (
                 <div className="space-y-2">
-                  {Object.values(groupedEpisodes)
-                    .flat()
-                    .map((episode, index) => {
-                      // Create a unique key using index and episodeId
-                      const episodeKey = `${episode.episodeId || index}`;
-                      return (
-                        <div
-                          key={episodeKey}
-                          className="border border-gray-800 rounded-md overflow-hidden"
+                  {Object.keys(groupedEpisodes).map((groupName) => (
+                    <div
+                      key={`group-${groupName}`}
+                      className="border border-gray-800 rounded-md overflow-hidden"
+                    >
+                      <div
+                        className="bg-gray-900 p-4 flex justify-between items-center cursor-pointer"
+                        onClick={() => toggleEpisode(`group-${groupName}`)}
+                      >
+                        <h3 className="font-medium">{groupName}</h3>
+                        <svg
+                          className={`h-5 w-5 transition-transform ${
+                            expandedEpisode === `group-${groupName}`
+                              ? 'transform rotate-180'
+                              : ''
+                          }`}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
                         >
-                          <div
-                            className="bg-gray-900 p-4 flex justify-between items-center cursor-pointer"
-                            onClick={() => toggleEpisode(episodeKey)}
-                          >
-                            <h3 className="font-medium">
-                              {episode.episodeNumber || index + 1}.{' '}
-                              {renderContent(episode.title)}
-                            </h3>
-                            <svg
-                              className={`h-5 w-5 transition-transform ${
-                                expandedEpisode === episodeKey
-                                  ? 'transform rotate-180'
-                                  : ''
-                              }`}
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6 9L12 15L18 9"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                          <path
+                            d="M6 9L12 15L18 9"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+
+                      {/* Expanded episode list */}
+                      {expandedEpisode === `group-${groupName}` && (
+                        <div className="bg-gray-800/50 p-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {groupedEpisodes[groupName].map((episode) => (
+                              <div
+                                key={episode.episodeId}
+                                className="border border-gray-700 rounded-lg hover:bg-gray-700/50 transition-colors"
+                              >
+                                <div
+                                  className="p-3 flex items-center gap-3 cursor-pointer"
+                                  onClick={() =>
+                                    navigate(
+                                      `/watch/${id}?ep=${episode.episodeId}`
+                                    )
+                                  }
+                                >
+                                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                                    <img
+                                      src={
+                                        episode.poster ||
+                                        show.posterUrl ||
+                                        '/placeholder.svg?height=80&width=80'
+                                      }
+                                      alt={renderContent(episode.title)}
+                                      className="absolute inset-0 w-full h-full object-cover rounded"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm sm:text-base truncate">
+                                      Episode {renderContent(episode.title)}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      Episode {renderContent(episode.title)}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                      <span>
+                                        {episode.duration ||
+                                          show.duration ||
+                                          '24 min'}
+                                      </span>
+                                      <span className="inline-block w-1 h-1 bg-gray-500 rounded-full"></span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-
-                          {expandedEpisode === episodeKey && (
-                            <div className="bg-gray-800/50 p-4">
-                              <div className="flex gap-4 mb-4">
-                                <div className="relative w-32 aspect-video flex-shrink-0">
-                                  <img
-                                    src={
-                                      episode.poster ||
-                                      '/placeholder.svg?height=180&width=320'
-                                    }
-                                    alt={renderContent(episode.title)}
-                                    className="absolute inset-0 w-full h-full object-cover rounded-md"
-                                  />
-                                  <div className="absolute bottom-1 right-1 bg-black/80 text-xs px-1 rounded">
-                                    {episode.duration || '24 min'}
-                                  </div>
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-xs text-gray-400 mt-1">
-                                    {renderContent(episode.description) ||
-                                      'No description available'}
-                                  </p>
-                                  <div className="mt-2 text-xs text-gray-500">
-                                    {episode.releaseDate ||
-                                      'Unknown release date'}
-                                  </div>
-                                  <button
-                                    className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(
-                                        `/watch/${id}?ep=${episode.episodeId}`
-                                      );
-                                    }}
-                                  >
-                                    Watch
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Recommended Anime Section */}
-                              <div className="mt-4 border-t border-gray-700 pt-4">
-                                <h4 className="text-sm font-medium mb-3">
-                                  Recommended Anime
-                                </h4>
-
-                                {loading.episodes[episodeKey] ? (
-                                  <RecommendationsSkeletonLoader />
-                                ) : recommendedAnime[episodeKey] &&
-                                  recommendedAnime[episodeKey].length > 0 ? (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {recommendedAnime[episodeKey].map(
-                                      (anime, idx) => (
-                                        <div
-                                          key={`rec-${episodeKey}-${idx}`}
-                                          className="flex gap-2 p-2 bg-gray-800 rounded-md hover:bg-gray-700 cursor-pointer"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate(
-                                              `/watch/${anime.id}?ep=${
-                                                anime.episodeId || ''
-                                              }`
-                                            );
-                                          }}
-                                        >
-                                          <div className="relative w-16 h-12 flex-shrink-0">
-                                            <img
-                                              src={
-                                                anime.poster ||
-                                                '/placeholder.svg?height=90&width=160'
-                                              }
-                                              alt={anime.title}
-                                              className="absolute inset-0 w-full h-full object-cover rounded"
-                                            />
-                                          </div>
-                                          <div className="flex-1 overflow-hidden">
-                                            <p className="text-xs font-medium truncate">
-                                              {anime.title}
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                              {anime.episodeNumber
-                                                ? `Episode ${anime.episodeNumber}`
-                                                : 'Unknown episode'}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )
-                                    )}
-                                  </div>
-                                ) : (
-                                  <p className="text-xs text-gray-400 text-center py-2">
-                                    No recommendations available
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      );
-                    })}
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -665,89 +632,9 @@ function DetailsPage() {
             </div>
           )}
 
-          {activeTab === 'related' && (
-            <div>
-              <h3 className="text-xl font-semibold mb-4">You May Also Like</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {/* {show.recommendedAnimeList &&
-                  show.recommendedAnimeList &&
-                  show.recommendedAnimeList.map((recommended) => (
-                    <Link
-                      to={`/details/${recommended.animeId}`}
-                      className="group"
-                    >
-                      <div className="relative aspect-[2/3] overflow-hidden rounded-md">
-                        <img
-                          src={
-                            recommended.posterUrl ||
-                            '/placeholder.svg?height=450&width=300'
-                          }
-                          alt={recommended.title}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        {recommended.isVip && (
-                          <div className="absolute top-1 right-1 bg-yellow-500 text-xs font-bold px-1 py-0.5 rounded">
-                            VIP
-                          </div>
-                        )}
-                        {recommended.isNew && (
-                          <div className="absolute top-1 left-1 bg-red-500 text-xs font-bold px-1 py-0.5 rounded">
-                            NEW
-                          </div>
-                        )}
-                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
-                          <div className="text-xs font-medium line-clamp-2">
-                            {recommended.title}
-                          </div>
-                          {showRating && (
-                            <div className="flex items-center mt-1">
-                              <span className="text-yellow-400 text-xs">★</span>
-                              <span className="text-xs ml-1">
-                                {recommended.rating}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {showTitle && (
-                        <div className="mt-1">
-                          <h3 className="text-sm font-medium line-clamp-1">
-                            {recommended.title}
-                          </h3>
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            {recommended.type === 'drama'
-                              ? 'Fantasy Melodrama'
-                              : 'Variety Show'}
-                          </p>
-                        </div>
-                      )}
-                    </Link>
-                  ))} */}
-                {console.log('show.recommendedAnimeList', show)}
-
-                {Array.isArray(show.recommendedAnimeList) &&
-                show.recommendedAnimeList.length > 0 ? (
-                  show.recommendedAnimeList.map((relatedShow) => (
-                    <ShowCard
-                      key={`related-${relatedShow.animeId}`}
-                      show={relatedShow}
-                      showTitle
-                      showRating
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-400 col-span-full">
-                    No related shows available
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
           {activeTab === 'download' && (
             <div className="py-4">
               {show.downloadUrl &&
-                show.downloadUrl &&
                 show.downloadUrl.map((downloadUrl, qIndex) => (
                   <div key={downloadUrl.title || qIndex}>
                     <h3 className="text-lg font-semibold mb-3">
@@ -756,16 +643,16 @@ function DetailsPage() {
                     {downloadUrl.qualities &&
                     downloadUrl.qualities.length > 0 ? (
                       downloadUrl.qualities.map((quality, uIndex) => (
-                        <div className="space-y-3">
+                        <div key={uIndex} className="space-y-3">
                           <div className="bg-gray-900 p-3 rounded-md mb-3">
                             <h4 className="font-medium mb-2">
                               {quality.title}
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                               {quality.urls && quality.urls.length > 0 ? (
-                                quality.urls.map((urlItem, uIndex) => (
+                                quality.urls.map((urlItem, urlIndex) => (
                                   <a
-                                    key={uIndex}
+                                    key={urlIndex}
                                     href={urlItem.url || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
