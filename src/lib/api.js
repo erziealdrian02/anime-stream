@@ -1677,16 +1677,28 @@ export async function fetchScheduleAnime() {
             const animeDetails = details.data;
             // console.log('animeDetails dari lib:', animeDetails);
 
+            let scoreValue = 'N/A';
+            if (animeDetails?.score) {
+              // Jika score adalah objek dengan property value atau score
+              if (typeof animeDetails.score === 'object') {
+                scoreValue =
+                  animeDetails.score.value ||
+                  animeDetails.score.score ||
+                  JSON.stringify(animeDetails.score);
+              }
+              // Jika score langsung berupa string atau number
+              else {
+                scoreValue = animeDetails.score.toString();
+              }
+            }
+
             return {
               animeId: anime.animeId,
               title: anime.title,
               href: anime.href,
               day: day.day, // Add the day information
               poster: animeDetails?.poster || '',
-              score:
-                animeDetails?.score && animeDetails.score !== ''
-                  ? animeDetails.score.toString()
-                  : 'N/A',
+              score: scoreValue,
               status: animeDetails?.status || 'Unknown',
               japanese: animeDetails?.japanese || '',
               duration: animeDetails?.duration || '',

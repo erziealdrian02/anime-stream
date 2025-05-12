@@ -12,16 +12,6 @@ function SchedulePage() {
 
   // English to Indonesian day mapping for display purposes
   const dayMapping = {
-    Senin: 'Monday',
-    Selasa: 'Tuesday',
-    Rabu: 'Wednesday',
-    Kamis: 'Thursday',
-    Jumat: 'Friday',
-    Sabtu: 'Saturday',
-    Minggu: 'Sunday',
-  };
-
-  const reverseDayMapping = {
     Monday: 'Senin',
     Tuesday: 'Selasa',
     Wednesday: 'Rabu',
@@ -31,16 +21,18 @@ function SchedulePage() {
     Sunday: 'Minggu',
   };
 
+  const reverseDayMapping = {
+    Senin: 'Monday',
+    Selasa: 'Tuesday',
+    Rabu: 'Wednesday',
+    Kamis: 'Thursday',
+    Jumat: 'Friday',
+    Sabtu: 'Saturday',
+    Minggu: 'Sunday',
+  };
+
   // Days to display in the UI
-  const days = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
+  const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
   useEffect(() => {
     const fetchSchedule = async () => {
