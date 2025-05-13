@@ -1,62 +1,67 @@
-# WenimeWatch
+# WeNime
 
-**WenimeWatch** adalah platform streaming anime berbasis web yang dibangun menggunakan React dan Vite. Proyek ini bertujuan untuk menyediakan pengalaman menonton anime yang cepat, ringan, dan bebas iklan langsung dari browser Anda.
+**WeNime** is a web-based anime streaming platform built using React and Vite. The project aims to provide a fast, lightweight, and ad-free anime viewing experience directly from your browser.
 
-## 🌐 Akses Aplikasi
+## 🌐 Access the App
 
-Kunjungi aplikasi live di: [https://wenimewatch.vercel.app](https://wenimewatch.vercel.app)
+Visit the live app at: [https://wenimewatch.vercel.app](https://wenimewatch.vercel.app)
 
-## ⚙️ Teknologi yang Digunakan
+## ⚙️ Technology Used
 
-- **React**: Library JavaScript untuk membangun antarmuka pengguna yang interaktif.
-- **Vite**: Build tool modern yang menawarkan pengembangan cepat dan efisien.
-- **ESLint**: Alat untuk menjaga konsistensi dan kualitas kode.
-- **Vercel**: Platform hosting untuk deployment yang cepat dan skalabel.
+- **React**: JavaScript library for building interactive user interfaces.
+- **Vite**: A modern build tool that offers fast and efficient development.
+- **ESLint**: A tool for maintaining code consistency and quality.
+- **Vercel**: A hosting platform for fast and scalable deployment.
 
-## 🚀 Fitur
+## Features
 
-- Streaming anime langsung dari browser tanpa perlu mengunduh.
-- Antarmuka pengguna yang responsif dan mudah digunakan.
-- Bebas iklan untuk pengalaman menonton yang lebih nyaman.
-- Integrasi dengan API untuk mendapatkan daftar anime terbaru.
+- Stream anime directly from the browser with no download required.
+- Responsive and easy-to-use user interface.
+- Ad-free for a more comfortable viewing experience.
+- Integration with API to get the latest anime list.
 
-## 📁 Struktur Proyek
+## 📁 Project Structure
 
-- `src/`: Berisi komponen React dan logika aplikasi.
-- `public/`: Berisi aset statis seperti gambar dan file HTML.
-- `index.html`: File HTML utama yang dirender di browser.
-- `package.json`: Berisi dependensi dan skrip untuk menjalankan proyek.
-- `vite.config.js`: Konfigurasi untuk Vite.
+- `src/`: Contains React components and application logic.
+- `public/`: Contains static assets such as images and HTML files.
+- `index.html`: The main HTML file rendered in the browser.
+- `package.json`: Contains dependencies and scripts to run the project.
+- `vite.config.js`: Configuration for Vite.
 
-## 🛠️ Cara Menjalankan Secara Lokal
+## 🛠️ How to Run Locally
 
-1. **Klon repositori ini:**
+1. **Clone this repository:**
 
    ```bash
    git clone https://github.com/erziealdrian02/anime-stream.git
    cd anime-stream
    ```
 
-2. **Instal dependensi:**
+````''
 
-   ```bash
-   npm install
-   ```
+2. **Install dependencies:**
 
-3. **Jalankan aplikasi:**
+  ```bash
+npm install
+````
+
+3. \*\*Run the application
 
    ```bash
    npm run dev
    ```
 
-   Aplikasi akan berjalan di `http://localhost:5173` secara default.
+```
 
-## 📄 Lisensi
+  The application will run at `http://localhost:5173` by default.
 
-Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+## 📄 License
 
----
-
-Jika Anda memiliki pertanyaan atau ingin berkontribusi, silakan buka [issue](https://github.com/erziealdrian02/anime-stream/issues) atau kirimkan pull request. Selamat menonton anime! 🎉
+This project is licensed under the [MIT License](LICENSE).
 
 ---
+
+If you have any questions or would like to contribute, please go to [issue](https://github.com/erziealdrian02/anime-stream/issues) or submit a pull request. Happy anime watching! 🎉
+
+---
+```
