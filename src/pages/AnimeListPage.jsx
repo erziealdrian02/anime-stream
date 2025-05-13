@@ -50,7 +50,7 @@ function AnimeListPage() {
 
       try {
         const response = await fetch(
-          'http://wenime-api.vercel.app/samehadaku/anime'
+          'https://wenime-api.vercel.app/samehadaku/anime'
         );
         const result = await response.json();
 

@@ -32,7 +32,7 @@ function Navbar() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://wenime-api.vercel.app/samehadaku/search?q=${query}`
+        `https://wenime-api.vercel.app/samehadaku/search?q=${query}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -191,35 +191,14 @@ function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center mr-6 z-20">
           <div className="flex items-center">
-            <svg
-              className="h-8 w-8 text-blue-500"
-              viewBox="0 0 36 36"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M18 36C27.9411 36 36 27.9411 36 18C36 8.05887 27.9411 0 18 0C8.05887 0 0 8.05887 0 18C0 27.9411 8.05887 36 18 36Z"
-                fill="url(#paint0_linear)"
-              />
-              <path
-                d="M25.9667 17.3333L13.9 9.33333V25.3333L25.9667 17.3333Z"
-                fill="white"
-              />
-              <defs>
-                <linearGradient
-                  id="paint0_linear"
-                  x1="18"
-                  y1="0"
-                  x2="18"
-                  y2="36"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="#3CCFCF" />
-                  <stop offset="1" stopColor="#2772F0" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span className="ml-2 font-bold text-xl text-white">WeNime</span>
+            <img
+              src="/wenime-logo.png"
+              alt="WeNime Logo"
+              className="h-14 w-14"
+            />
+            <p className="ml-2 font-bold text-xl text-white">
+              <span className="text-blue-500 font-extrabold">We</span>Nime
+            </p>
           </div>
         </Link>
 
@@ -646,7 +625,7 @@ function Navbar() {
             )}
           </div>
 
-          <button className="text-gray-400 hover:text-white transition-colors duration-200">
+          {/* <button className="text-gray-400 hover:text-white transition-colors duration-200">
             <svg
               className="h-6 w-6"
               viewBox="0 0 24 24"
@@ -668,7 +647,7 @@ function Navbar() {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
+          </button> */}
           {/* <button className="text-gray-400 hover:text-white transition-colors duration-200">
             <svg
               className="h-6 w-6"

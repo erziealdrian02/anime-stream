@@ -184,7 +184,7 @@ function DetailsMoviePage() {
         episodes: { ...prev.episodes, [episodeId]: true },
       }));
       const response = await fetch(
-        `http://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
+        `https://wenime-api.vercel.app/samehadaku/episode/${episodeId}`
       );
       const data = await response.json();
 

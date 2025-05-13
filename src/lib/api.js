@@ -515,7 +515,7 @@ export async function fetchOngoingAnime() {
 export async function fetchCompleteAnime() {
   try {
     const response = await fetch(
-      'https://wenime-api.vercel.app/samehadaku/popular'
+      'https://wenime-api.vercel.app/samehadaku/completed'
     );
     const data = await response.json();
     // console.log('Result dari lib:', data);

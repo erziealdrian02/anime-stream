@@ -4,14 +4,41 @@ function Footer() {
   return (
     <footer className="bg-gray-900 py-12 mt-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-bold text-lg mb-4">WeNime</h3>
             <p className="text-gray-400 text-sm">
-              The best streaming platform for Asian dramas, variety shows, and
-              movies.
+              WeNime adalah aplikasi untuk menonton anime yang melakukan
+              crawling data dari Kusonime. Website ini hanyalah portofolio dari
+              author.
             </p>
             <div className="flex space-x-4 mt-4">
+              <Link
+                to="https://erziealdrian02.github.io/"
+                target="_blank"
+                className="text-gray-400 hover:text-white"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+               10-4.48 10-10S17.52 2 12 2zm0 18
+               c-4.41 0-8-3.59-8-8s3.59-8 8-8
+               8 3.59 8 8-3.59 8-8 8z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M12 4c1.85 0 3.5 2.69 3.5 8S13.85 20 12 20
+               8.5 17.31 8.5 12 10.15 4 12 4z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="sr-only">Portfolio Website</span>
+              </Link>
               <Link to="#" className="text-gray-400 hover:text-white">
                 <svg
                   className="h-5 w-5"
@@ -108,29 +135,29 @@ function Footer() {
             <h3 className="font-bold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <Link to="#" className="hover:text-white">
-                  About Us
+                <Link to="/" className="hover:text-white">
+                  Beranda
                 </Link>
               </li>
               <li>
-                <Link to="#" className="hover:text-white">
-                  Careers
+                <Link to="/anime-list" className="hover:text-white">
+                  Semua Anime List
                 </Link>
               </li>
               <li>
-                <Link to="#" className="hover:text-white">
-                  Contact Us
+                <Link to="/schedule" className="hover:text-white">
+                  Jadwal Anime
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="#" className="hover:text-white">
                   Press
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
-          <div>
+          {/* <div>
             <h3 className="font-bold mb-4">Support</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
@@ -154,7 +181,7 @@ function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           <div>
             <h3 className="font-bold mb-4">Download App</h3>
@@ -164,15 +191,9 @@ function Footer() {
             <div className="flex flex-col space-y-2">
               <Link
                 to="#"
-                className="border border-gray-700 rounded-md px-4 py-2 text-sm hover:bg-gray-800"
+                className="border border-gray-700 w-1/2 rounded-md px-4 py-2 text-sm hover:bg-gray-800"
               >
-                App Store
-              </Link>
-              <Link
-                to="#"
-                className="border border-gray-700 rounded-md px-4 py-2 text-sm hover:bg-gray-800"
-              >
-                Google Play
+                Download WeNime Apps
               </Link>
             </div>
           </div>
