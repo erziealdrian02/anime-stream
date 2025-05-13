@@ -1,7 +1,3 @@
-Berikut adalah README yang diperbarui untuk repositori GitHub [erziealdrian02/anime-stream](https://github.com/erziealdrian02/anime-stream), yang kini dapat diakses secara publik melalui situs [wenimewatch.vercel.app](https://wenimewatch.vercel.app):
-
----
-
 # WenimeWatch
 
 **WenimeWatch** adalah platform streaming anime berbasis web yang dibangun menggunakan React dan Vite. Proyek ini bertujuan untuk menyediakan pengalaman menonton anime yang cepat, ringan, dan bebas iklan langsung dari browser Anda.
